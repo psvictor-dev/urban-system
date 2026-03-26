@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendário & Banco de Sementes — Sisteminha Embrapa</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0f1a0f;
+  --bg2:      #162016;
+  --bg3:      #1e2e1e;
+  --verde:    #4caf50;
+  --verde2:   #81c784;
+  --verde3:   #a5d6a7;
+  --ouro:     #f9a825;
+  --ouro2:    #ffe082;
+  --terra:    #8d6e63;
+  --terra2:   #bcaaa4;
+  --chuva:    #42a5f5;
+  --seca:     #ff8f00;
+  --borda:    rgba(76,175,80,0.2);
+  --texto:    #e8f5e9;
+  --sub:      #a5d6a7;
+}
+
+body {
+  background: var(--bg);
+  color: var(--texto);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #0a140a 0%, #1a2e1a 100%);
+  border-bottom: 1px solid var(--borda);
+  padding: 20px 24px 16px;
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(10px);
+}
+.header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-emoji { font-size: 28px; }
+.logo-text { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 900; color: var(--verde2); line-height: 1.1; }
+.logo-sub { font-size: 10px; color: var(--terra2); letter-spacing: 2px; text-transform: uppercase; }
+.tabs { display: flex; gap: 6px; }
+.tab { background: transparent; border: 1px solid var(--borda); color: var(--sub); padding: 7px 16px; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; transition: all .2s; }
+.tab:hover { border-color: var(--verde); color: var(--verde2); }
+.tab.active { background: var(--verde); border-color: var(--verde); color: #fff; font-weight: 600; }
+
+/* ── MAIN ── */
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── INTRO CLIMA ── */
+.clima-bar {
+  display: grid; grid-template-columns: repeat(12,1fr); gap: 3px;
+  background: var(--bg3); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 14px 16px 10px; margin-bottom: 22px;
+}
+.clima-mes { text-align: center; }
+.clima-nome { font-size: 9px; color: var(--terra2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.clima-barra { height: 28px; border-radius: 4px; margin-bottom: 4px; }
+.clima-label { font-size: 8px; font-weight: 600; }
+.chuva { background: var(--chuva); }
+.seca  { background: var(--seca); }
+
+/* ── LEGENDA CLIMA ── */
+.legenda-clima { display: flex; gap: 16px; font-size: 11px; margin-bottom: 20px; }
+.leg-item { display: flex; align-items: center; gap: 6px; }
+.leg-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+/* ── SEÇÃO TÍTULO ── */
+.sec-title {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700;
+  color: var(--verde2); margin-bottom: 6px;
+}
+.sec-sub { font-size: 13px; color: var(--terra2); margin-bottom: 18px; }
+
+/* ── TABELA ESCALONAMENTO ── */
+.tabela-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--borda); }
+table { width: 100%; border-collapse: collapse; min-width: 900px; }
+thead th {
+  background: var(--bg3); padding: 10px 8px; font-size: 11px;
+  font-weight: 600; color: var(--sub); text-align: center;
+  border-bottom: 1px solid var(--borda); position: sticky; top: 0;
+}
+th.cultura-col { text-align: left; min-width: 130px; padding-left: 14px; }
+tbody tr { border-bottom: 1px solid rgba(76,175,80,0.08); transition: background .15s; }
+tbody tr:hover { background: rgba(76,175,80,0.05); }
+td { padding: 9px 6px; text-align: center; font-size: 12px; }
+td.cultura-nome {
+  text-align: left; padding-left: 14px; font-weight: 500;
+  color: var(--texto); font-size: 13px;
+}
+td.cultura-nome .emoji { margin-right: 6px; }
+td.cultura-nome .tag {
+  display: inline-block; font-size: 9px; padding: 1px 6px;
+  border-radius: 10px; margin-left: 6px; font-weight: 600; vertical-align: middle;
+}
+.tag-canteiro { background: rgba(76,175,80,0.2); color: var(--verde2); }
+.tag-campo    { background: rgba(249,168,37,0.2); color: var(--ouro); }
+.tag-erva     { background: rgba(141,110,99,0.2); color: var(--terra2); }
+
+.cel { width: 28px; height: 28px; border-radius: 6px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.cel-plantar { background: rgba(76,175,80,0.25); color: var(--verde2); font-weight: 700; font-size: 10px; }
+.cel-colher  { background: rgba(249,168,37,0.25); color: var(--ouro); font-weight: 700; font-size: 10px; }
+.cel-semente { background: rgba(66,165,245,0.2);  color: #64b5f6; font-weight: 700; font-size: 10px; }
+.cel-vazio   { }
+.cel-caution { background: rgba(255,87,34,0.15);  color: #ff7043; font-size: 10px; }
+
+/* notas da cultura */
+.nota-row td { padding: 4px 14px 10px; font-size: 11px; color: var(--terra2); font-style: italic; border-bottom: 1px solid var(--borda); }
+
+/* legenda tabela */
+.legenda-tabela { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; margin-top: 14px; margin-bottom: 28px; }
+.lt-item { display: flex; align-items: center; gap: 6px; }
+.lt-box { width: 24px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+
+/* ── ESCALONAMENTO CANTEIROS ── */
+.canteiros-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; margin-bottom: 28px; }
+@media(max-width:640px){ .canteiros-grid { grid-template-columns: 1fr; } }
+
+.canteiro-card {
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 16px;
+}
+.canteiro-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.canteiro-num {
+  background: var(--verde); color: #fff; width: 28px; height: 28px;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.canteiro-title { font-weight: 600; font-size: 14px; color: var(--verde2); }
+.canteiro-dim { font-size: 11px; color: var(--terra2); }
+
+.ciclo-strip { display: flex; gap: 3px; margin-bottom: 8px; }
+.ciclo-bloco {
+  flex: 1; height: 32px; border-radius: 5px; display: flex; align-items: center;
+  justify-content: center; font-size: 9px; font-weight: 600; color: rgba(0,0,0,0.7);
+  cursor: default;
+}
+.ciclo-s { background: #81c784; }
+.ciclo-c { background: #ffe082; }
+.ciclo-r { background: #bcaaa4; }
+.ciclo-label { font-size: 10px; color: var(--terra2); margin-bottom: 2px; }
+
+/* ── BANCO DE SEMENTES ── */
+.banco-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 10px;
+}
+.btn-add {
+  background: var(--verde); color: #fff; border: none;
+  padding: 9px 20px; border-radius: 10px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  transition: background .2s;
+}
+.btn-add:hover { background: #388e3c; }
+
+.sementes-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 12px; }
+
+.semente-card {
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 14px; position: relative;
+  transition: border-color .2s;
+}
+.semente-card:hover { border-color: var(--verde); }
+.semente-emoji { font-size: 28px; margin-bottom: 6px; }
+.semente-nome { font-weight: 600; font-size: 15px; color: var(--verde2); margin-bottom: 2px; }
+.semente-var  { font-size: 11px; color: var(--terra2); margin-bottom: 8px; }
+.semente-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.semente-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500;
+  background: rgba(76,175,80,0.15); color: var(--verde2);
+}
+.semente-badge.amarelo { background: rgba(249,168,37,0.15); color: var(--ouro2); }
+.semente-badge.azul    { background: rgba(66,165,245,0.15); color: #90caf9; }
+.semente-badge.terra   { background: rgba(141,110,99,0.2);  color: var(--terra2); }
+.semente-estoque { display: flex; align-items: center; gap: 8px; }
+.estoque-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+.estoque-bar { height: 100%; border-radius: 3px; background: var(--verde); transition: width .3s; }
+.estoque-val { font-size: 11px; color: var(--terra2); white-space: nowrap; }
+.semente-acoes { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; }
+.btn-icon { background: rgba(255,255,255,0.05); border: 1px solid var(--borda); color: var(--terra2); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.btn-icon:hover { background: rgba(255,87,34,0.15); color: #ff7043; border-color: #ff7043; }
+
+.empty-state { text-align: center; padding: 48px 20px; color: var(--terra2); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; line-height: 1.6; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 200;
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--borda);
+  border-radius: 16px; padding: 24px; width: 100%; max-width: 440px;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-title { font-family: 'Fraunces', serif; font-size: 20px; color: var(--verde2); margin-bottom: 18px; }
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; color: var(--sub); font-weight: 500; margin-bottom: 5px; display: block; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--borda);
+  color: var(--texto); padding: 9px 12px; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  transition: border-color .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--verde);
+}
+.form-select option { background: var(--bg3); }
+.form-textarea { resize: vertical; min-height: 70px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; }
+.btn-cancelar {
+  flex: 1; background: transparent; border: 1px solid var(--borda);
+  color: var(--terra2); padding: 10px; border-radius: 8px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px;
+  transition: all .2s;
+}
+.btn-cancelar:hover { border-color: var(--terra); color: var(--terra2); }
+.btn-salvar {
+  flex: 2; background: var(--verde); border: none; color: #fff;
+  padding: 10px; border-radius: 8px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  transition: background .2s;
+}
+.btn-salvar:hover { background: #388e3c; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--verde); color: #fff; padding: 10px 18px;
+  border-radius: 10px; font-size: 13px; font-weight: 500;
+  opacity: 0; transform: translateY(10px);
+  transition: all .3s; pointer-events: none; z-index: 300;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-emoji">🌱</span>
+      <div>
+        <div class="logo-text">Sisteminha Embrapa</div>
+        <div class="logo-sub">Calendário · Escalonamento · Banco de Sementes</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showPage('calendario')">📅 Calendário</button>
+      <button class="tab" onclick="showPage('escalonamento')">🔄 Canteiros</button>
+      <button class="tab" onclick="showPage('banco')">🫙 Banco de Sementes</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     PÁGINA 1 — CALENDÁRIO
+════════════════════════════════════════════ -->
+<div class="page active" id="page-calendario">
+
+  <div class="sec-title">Calendário de Plantio — Semiárido Pernambucano</div>
+  <div class="sec-sub">Com irrigação da cisterna. Chuvas concentradas em mar–jul. Irrigação garante produção o ano todo.</div>
+
+  <!-- Barra climática -->
+  <div class="clima-bar" id="climaBar"></div>
+  <div class="legenda-clima">
+    <div class="leg-item"><div class="leg-dot chuva"></div> Período chuvoso (mar–jul)</div>
+    <div class="leg-item"><div class="leg-dot seca"></div> Período seco (ago–fev) — irrigação essencial</div>
+  </div>
+
+  <!-- Legenda tabela -->
+  <div class="legenda-tabela">
+    <div class="lt-item"><div class="lt-box cel-plantar">P</div> Plantar / Semear</div>
+    <div class="lt-item"><div class="lt-box cel-semente">S</div> Sementeira (30d antes)</div>
+    <div class="lt-item"><div class="lt-box cel-colher">C</div> Colheita</div>
+    <div class="lt-item"><div class="lt-box cel-caution">⚠</div> Atenção / Calor intenso</div>
+    <div class="lt-item"><div class="lt-box cel-vazio" style="background:rgba(255,255,255,0.05)">—</div> Repouso do canteiro</div>
+  </div>
+
+  <div class="tabela-wrapper">
+    <table id="tabelaCalendario">
+      <thead id="theadCalendario"></thead>
+      <tbody id="tbodyCalendario"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PÁGINA 2 — ESCALONAMENTO DOS CANTEIROS
+════════════════════════════════════════════ -->
+<div class="page" id="page-escalonamento">
+
+  <div class="sec-title">Escalonamento dos 4 Canteiros (5m × 1,4m)</div>
+  <div class="sec-sub">Cada canteiro tem função específica. Plantios a cada 15 dias garantem colheita contínua sem interrupção.</div>
+
+  <div class="canteiros-grid" id="canteirosGrid"></div>
+
+  <div class="sec-title" style="font-size:18px; margin-top:8px;">Régua de 15 dias — Quando plantar a sementeira</div>
+  <div class="sec-sub">Plante na sementeira 30 dias antes de transplantar. A sementeira deve ter sempre 2 lotes em estágios diferentes.</div>
+
+  <div style="background:var(--bg2); border:1px solid var(--borda); border-radius:12px; padding:16px; margin-top:8px;">
+    <div id="regraQuinzenal"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PÁGINA 3 — BANCO DE SEMENTES
+════════════════════════════════════════════ -->
+<div class="page" id="page-banco">
+
+  <div class="banco-header">
+    <div>
+      <div class="sec-title" style="margin-bottom:2px;">🫙 Banco de Sementes Pessoal</div>
+      <div class="sec-sub" style="margin-bottom:0">Seu acervo de sementes. Adicione, edite e controle o estoque.</div>
+    </div>
+    <button class="btn-add" onclick="abrirModal()">+ Adicionar Semente</button>
+  </div>
+
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px" id="filtrosBanco">
+    <button class="tab active" onclick="setFiltro('todos',this)">Todas</button>
+    <button class="tab" onclick="setFiltro('hortalica',this)">🥗 Hortaliças</button>
+    <button class="tab" onclick="setFiltro('erva',this)">🌿 Ervas</button>
+    <button class="tab" onclick="setFiltro('grao',this)">🫘 Grãos</button>
+    <button class="tab" onclick="setFiltro('fruta',this)">🍌 Frutas</button>
+    <button class="tab" onclick="setFiltro('milpa',this)">🌽 Milpa</button>
+    <button class="tab" onclick="setFiltro('flor',this)">🌸 Flores</button>
+  </div>
+
+  <div class="sementes-grid" id="sementesGrid"></div>
+</div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     MODAL ADICIONAR SEMENTE
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">🌱 Nova Semente</div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input class="form-input" id="f-emoji" placeholder="🌽" maxlength="4">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nome da Planta *</label>
+        <input class="form-input" id="f-nome" placeholder="Milho">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Variedade / Cultivar</label>
+      <input class="form-input" id="f-var" placeholder="BRS Caatingueiro, crioula, etc.">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="f-tipo">
+          <option value="hortalica">Hortaliça</option>
+          <option value="erva">Erva / Tempero</option>
+          <option value="grao">Grão / Leguminosa</option>
+          <option value="fruta">Fruta</option>
+          <option value="flor">Flor</option>
+          <option value="milpa">Milpa (Consórcio)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Estoque (gramas)</label>
+        <input class="form-input" type="number" id="f-estoque" placeholder="50" min="0">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Meses para plantar</label>
+        <input class="form-input" id="f-meses" placeholder="Mar, Abr, Mai">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dias para colheita</label>
+        <input class="form-input" type="number" id="f-dias" placeholder="60" min="1">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Método de plantio</label>
+      <select class="form-select" id="f-metodo">
+        <option value="sementeira">Sementeira + transplante</option>
+        <option value="direto">Semeio direto</option>
+        <option value="muda">Muda / Estaca</option>
+        <option value="rizoma">Rizoma / Bulbo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Origem da semente</label>
+      <select class="form-select" id="f-origem">
+        <option value="propria">Própria (salva)</option>
+        <option value="vizinho">Trocada com vizinho</option>
+        <option value="embrapa">Embrapa / ATER</option>
+        <option value="comprada">Comprada</option>
+        <option value="doacao">Doação</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas / Observações</label>
+      <textarea class="form-textarea" id="f-notas" placeholder="Adaptação local, sabor, resistência à seca..."></textarea>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-salvar" onclick="salvarSemente()">Salvar no Banco</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DADOS
+// ─────────────────────────────────────────────
+
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const CLIMA  = [0,0,1,1,1,1,1,0,0,0,0,0]; // 1=chuva
+
+// P=plantar, C=colher, S=sementeira, !=atenção, -=vazio
+const CULTURAS = [
+  {
+    nome:'Milpa (Milho+Feijão+Abóbora)', emoji:'🌽', tipo:'milpa',
+    cal: ['S','P','P','P','C','C','C','-','-','S','S','-'],
+    nota:'Plantar no início das chuvas. Sementeira do milho 30 dias antes. Espaçamento milho 50×50cm, feijão 25cm entre plantas.',
+    sementes:['Milho BRS Caatingueiro','Feijão-caupi BRS Pujante','Abóbora cabotiá']
+  },
+  {
+    nome:'Tomate', emoji:'🍅', tipo:'canteiro',
+    cal: ['-','-','S','P','P','!','!','-','-','S','P','-'],
+    nota:'Pernambuco: melhor época mar–mai. Evitar jun–ago (traça). Com irrigação, plantar set–out também é possível. Variedade: Santa Clara ou Yoshimatsu.',
+  },
+  {
+    nome:'Manjericão', emoji:'🌿', tipo:'erva',
+    cal: ['-','S','P','P','P','P','C','C','C','S','P','-'],
+    nota:'Cresce o ano todo com irrigação. Colher antes de florescer. Plantar em vaso ou beirada do canteiro.',
+  },
+  {
+    nome:'Batata-doce', emoji:'🍠', tipo:'canteiro',
+    cal: ['-','-','P','P','P','-','C','C','C','-','-','-'],
+    nota:'Plantar por ramas (não semente). Ciclo 90-120 dias. Muito resistente ao calor. Ocupa canteiro por 4 meses.',
+  },
+  {
+    nome:'Alho', emoji:'🧄', tipo:'canteiro',
+    cal: ['-','-','P','P','-','-','C','C','-','-','-','-'],
+    nota:'Nordeste: plantar mar–abr com temperaturas mais amenas. Plantar por bulbilhos (dentes). Variedade: Roxo Pernambuco.',
+  },
+  {
+    nome:'Cebola', emoji:'🧅', tipo:'canteiro',
+    cal: ['C','-','S','P','P','-','-','C','C','S','P','P'],
+    nota:'PE produz cebola o ano todo sob irrigação. Melhor época: mar–jun e set–nov. Variedade: Vale Ouro IPA 11.',
+  },
+  {
+    nome:'Feijão-caupi', emoji:'🫘', tipo:'grao',
+    cal: ['-','-','P','P','P','C','C','-','-','-','P','P'],
+    nota:'O feijão do sertão. Altamente resistente. Plantar no início das chuvas. BRS Pujante (tolerante calor). Ciclo 65-70 dias.',
+  },
+  {
+    nome:'Feijão-fava', emoji:'🟤', tipo:'grao',
+    cal: ['-','-','P','P','-','-','C','C','-','-','-','-'],
+    nota:'Phaseolus lunatus. Mais sensível ao calor. Plantar nas águas (mar–abr). Guardar sementes das melhores vagens.',
+  },
+  {
+    nome:'Feijão-de-metro', emoji:'🟢', tipo:'grao',
+    cal: ['P','P','P','-','-','-','C','C','P','P','-','-'],
+    nota:'Vigna unguiculata sesquipedalis. Vagem longa (até 1m!). Ótimo para o semiárido. Pode plantar quase o ano todo com irrigação.',
+  },
+  {
+    nome:'Lentilha', emoji:'🔴', tipo:'grao',
+    cal: ['-','-','-','P','P','P','C','C','-','-','-','-'],
+    nota:'⚠ Cultura adaptada a climas mais amenos. No semiárido, tentar apenas nas épocas mais frescas (abr–jun). Resultado incerto sem altitude.',
+  },
+  {
+    nome:'Girassol', emoji:'🌻', tipo:'flor',
+    cal: ['-','-','P','P','P','-','C','C','P','-','-','-'],
+    nota:'Dupla função: flor ornamental + sementes comestíveis. Atrai polinizadores para a horta. Plantar nas bordas. Ciclo 70-90 dias.',
+  },
+  {
+    nome:'Flores (cravo/cosmos)', emoji:'🌸', tipo:'flor',
+    cal: ['-','-','S','P','P','C','C','C','S','P','P','-'],
+    nota:'Afastam pragas naturalmente (companheiras). Cravo-de-defunto repele nematoides. Plantar nas bordas dos canteiros.',
+  },
+  {
+    nome:'Coentro', emoji:'🍃', tipo:'erva',
+    cal: ['P','P','P','P','-','-','C','C','P','P','P','P'],
+    nota:'Plantar o ano todo com irrigação. Evitar calor intenso (mai–jul) — vai ao ponto muito rápido. Escalonar a cada 15 dias.',
+  },
+  {
+    nome:'Cebolinha', emoji:'🧅', tipo:'erva',
+    cal: ['P','P','P','P','P','P','C','C','P','P','P','P'],
+    nota:'Produz o ano todo. Colher cortando as folhas, deixar a raiz para rebrotar. Multiplicar por divisão da touceira.',
+  },
+  {
+    nome:'Capim-limão', emoji:'🌿', tipo:'erva',
+    cal: ['-','-','P','P','-','-','-','C','C','-','-','-'],
+    nota:'Plantar por divisão de touceira. Perene — planta uma vez, colhe para sempre. Repele insetos e atrai abelhas.',
+  },
+  // ── NOVAS PLANTAS ────────────────────────────
+  {
+    nome:'Rúcula', emoji:'🥗', tipo:'canteiro',
+    cal: ['P','P','P','P','-','-','C','C','P','P','P','P'],
+    nota:'Ciclo curto (30-40 dias). Vai ao ponto rápido no calor — escalonar a cada 15 dias. Plantar o ano todo com irrigação. Preferência por temperaturas amenas.',
+  },
+  {
+    nome:'Couve', emoji:'🥬', tipo:'canteiro',
+    cal: ['-','S','P','P','P','C','C','C','P','S','P','-'],
+    nota:'Perene no semiárido — cortar folhas e deixar rebrotar. Muito nutritiva. Variedade: Manteiga ou Tronchuda. Resistente ao calor quando estabelecida.',
+  },
+  {
+    nome:'Brócolis', emoji:'🥦', tipo:'canteiro',
+    cal: ['-','-','S','P','P','-','-','C','S','P','P','-'],
+    nota:'Melhor nos meses mais frescos (abr-jun e set-nov). Sensível ao calor intenso. Variedade: Ramoso Verde Piracicaba — mais tolerante ao calor que híbridos. Ciclo 70-90 dias.',
+  },
+  {
+    nome:'Salsinha', emoji:'🌿', tipo:'erva',
+    cal: ['P','P','P','P','P','-','C','C','P','P','P','P'],
+    nota:'Plantar o ano todo com irrigação. Ciclo 70-80 dias. Germinação lenta (15-25 dias) — não desistir. Cobrir a sementeira com palha até germinar.',
+  },
+  {
+    nome:'Abobrinha', emoji:'🥒', tipo:'canteiro',
+    cal: ['-','-','P','P','P','C','C','-','-','P','P','-'],
+    nota:'Ciclo rápido (45-60 dias). Plantar no início das chuvas ou com irrigação. Colher jovem (15-20cm) para produção contínua. Ocupa espaço — 1,5m entre plantas.',
+  },
+  {
+    nome:'Cenoura', emoji:'🥕', tipo:'canteiro',
+    cal: ['-','-','S','P','P','-','C','C','S','P','P','-'],
+    nota:'Semeio direto em sulcos de 1cm. NÃO transplantar (raiz pivotante). Solo bem destorroado e profundo. Ciclo 70-90 dias. Variedade: Brasília (mais tolerante ao calor) ou Nantes.',
+  },
+  {
+    nome:'Banana', emoji:'🍌', tipo:'fruta',
+    cal: ['P','P','P','-','-','-','C','C','C','P','P','P'],
+    nota:'Perene — plantar por mudas (chifres) no início das chuvas. Colher 9-12 meses após o plantio. Variedade: Pacovan ou Nanica. Produz penca por penca ao longo do ano. Excelente para sombra da horta.',
+  },
+  {
+    nome:'Abacaxi', emoji:'🍍', tipo:'fruta',
+    cal: ['-','-','P','P','-','-','-','C','C','P','-','-'],
+    nota:'Plantar por filhotes (mudas da coroa ou laterais). Ciclo 18-24 meses. Variedade: Pérola (mais doce) ou MD-2. Muito resistente à seca após estabelecido. Exige solo bem drenado.',
+  },
+  {
+    nome:'Maracujá', emoji:'🟡', tipo:'fruta',
+    cal: ['-','-','S','P','P','-','C','C','C','S','P','-'],
+    nota:'Plantar por semente ou muda. Ciclo 6-8 meses até a produção. Trepadeira — precisa de espaldeira ou cerca. Variedade: BRS Sol do Cerrado. Produz por 2-3 anos. Atrai polinizadores.',
+  },
+];
+
+const SEMENTES_PADRAO = [
+  { id:1, emoji:'🌽', nome:'Milho', variante:'BRS Caatingueiro', tipo:'milpa', estoque:200, estoqueMax:300, meses:'Mar, Abr', dias:90, metodo:'direto', origem:'embrapa', notas:'Variedade adaptada ao semiárido. Alta tolerância à seca.' },
+  { id:2, emoji:'🫘', nome:'Feijão-caupi', variante:'BRS Pujante', tipo:'grao', estoque:180, estoqueMax:250, meses:'Mar, Abr, Nov', dias:68, metodo:'direto', origem:'embrapa', notas:'Tolerante ao calor. Excelente proteína. Guardar os melhores grãos.' },
+  { id:3, emoji:'🎃', nome:'Abóbora', variante:'Cabotiá crioula', tipo:'milpa', estoque:45, estoqueMax:80, meses:'Mar, Abr', dias:110, metodo:'direto', origem:'propria', notas:'Salva da colheita anterior. Boa resistência local.' },
+  { id:4, emoji:'🍅', nome:'Tomate', variante:'Santa Clara', tipo:'hortalica', estoque:12, estoqueMax:30, meses:'Mar, Abr, Out', dias:75, metodo:'sementeira', origem:'comprada', notas:'Comprar sementes novas a cada ciclo.' },
+  { id:5, emoji:'🌿', nome:'Manjericão', variante:'Italiano', tipo:'erva', estoque:8, estoqueMax:20, meses:'Ano todo', dias:45, metodo:'sementeira', origem:'propria', notas:'Guardar sementes das flores antes de secar.' },
+  { id:6, emoji:'🌻', nome:'Girassol', variante:'Anão decorativo', tipo:'flor', estoque:30, estoqueMax:60, meses:'Mar, Abr, Set', dias:80, metodo:'direto', origem:'doacao', notas:'Atrai abelhas. Plantar nas bordas dos canteiros.' },
+  { id:7, emoji:'🥗', nome:'Rúcula', variante:'Cultivada', tipo:'hortalica', estoque:15, estoqueMax:30, meses:'Ano todo (evitar mai-jul)', dias:35, metodo:'sementeira', origem:'comprada', notas:'Ciclo curtíssimo. Escalonar a cada 15 dias.' },
+  { id:8, emoji:'🥬', nome:'Couve', variante:'Manteiga', tipo:'hortalica', estoque:10, estoqueMax:25, meses:'Mar, Abr, Set, Out', dias:60, metodo:'sementeira', origem:'comprada', notas:'Perene — colher folhas de fora para dentro. Rebrota por anos.' },
+  { id:9, emoji:'🥦', nome:'Brócolis', variante:'Ramoso Verde Piracicaba', tipo:'hortalica', estoque:8, estoqueMax:20, meses:'Abr, Mai, Set, Out', dias:80, metodo:'sementeira', origem:'comprada', notas:'Mais tolerante ao calor que híbridos. Colher antes de abrir as flores.' },
+  { id:10, emoji:'🌿', nome:'Salsinha', variante:'Comum lisa', tipo:'erva', estoque:6, estoqueMax:20, meses:'Ano todo', dias:75, metodo:'sementeira', origem:'comprada', notas:'Germinação lenta (15-25 dias). Cobrir sementeira com palha até germinar.' },
+  { id:11, emoji:'🥒', nome:'Abobrinha', variante:'Italiana', tipo:'hortalica', estoque:20, estoqueMax:40, meses:'Mar, Abr, Mai, Out, Nov', dias:50, metodo:'direto', origem:'comprada', notas:'Colher jovem (15-20cm). Produção contínua se não deixar maturar.' },
+  { id:12, emoji:'🥕', nome:'Cenoura', variante:'Brasília', tipo:'hortalica', estoque:10, estoqueMax:25, meses:'Mar, Abr, Set, Out', dias:80, metodo:'direto', origem:'comprada', notas:'Semeio direto em sulcos. Solo profundo e destorroado. Não transplantar.' },
+  { id:13, emoji:'🍌', nome:'Banana', variante:'Pacovan', tipo:'fruta', estoque:0, estoqueMax:10, meses:'Jan, Fev, Mar, Out, Nov, Dez', dias:365, metodo:'muda', origem:'vizinho', notas:'Plantar por chifres (mudas). Produz penca contínua após 9-12 meses.' },
+  { id:14, emoji:'🍍', nome:'Abacaxi', variante:'Pérola', tipo:'fruta', estoque:0, estoqueMax:10, meses:'Mar, Abr, Set, Out', dias:540, metodo:'muda', origem:'propria', notas:'Plantar por filhotes da coroa. Ciclo 18-24 meses. Resistente à seca.' },
+  { id:15, emoji:'🟡', nome:'Maracujá', variante:'BRS Sol do Cerrado', tipo:'fruta', estoque:15, estoqueMax:30, meses:'Mar, Abr, Set, Out', dias:210, metodo:'sementeira', origem:'embrapa', notas:'Trepadeira — precisa de espaldeira. Produz 2-3 anos. Atrai polinizadores.' },
+];
+
+// Merge: keeps user edits, adds new default seeds not yet in localStorage
+function carregarBanco() {
+  const salvo = JSON.parse(localStorage.getItem('banco_sementes') || 'null');
+  if (!salvo) return SEMENTES_PADRAO;
+  const idsExistentes = new Set(salvo.map(s => s.id));
+  const novas = SEMENTES_PADRAO.filter(s => !idsExistentes.has(s.id));
+  return [...salvo, ...novas];
+}
+let bancoDeSementes = carregarBanco();
+
+// ─────────────────────────────────────────────
+// NAVEGAÇÃO
+// ─────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// BARRA CLIMÁTICA
+// ─────────────────────────────────────────────
+function renderClima() {
+  const bar = document.getElementById('climaBar');
+  bar.innerHTML = MESES.map((m,i) => {
+    const chuva = CLIMA[i];
+    const h = chuva ? 28 : 12;
+    const cls = chuva ? 'chuva' : 'seca';
+    return `<div class="clima-mes">
+      <div class="clima-nome">${m}</div>
+      <div class="clima-barra ${cls}" style="height:${h}px"></div>
+      <div class="clima-label" style="color:${chuva?'#42a5f5':'#ff8f00'}">${chuva?'💧':'☀'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// TABELA CALENDÁRIO
+// ─────────────────────────────────────────────
+function celula(codigo) {
+  if(!codigo || codigo === '-') return `<td><div class="cel cel-vazio">—</div></td>`;
+  if(codigo === 'P') return `<td><div class="cel cel-plantar">P</div></td>`;
+  if(codigo === 'C') return `<td><div class="cel cel-colher">C</div></td>`;
+  if(codigo === 'S') return `<td><div class="cel cel-semente">S</div></td>`;
+  if(codigo === '!') return `<td><div class="cel cel-caution">⚠</div></td>`;
+  return `<td><div class="cel cel-vazio">—</div></td>`;
+}
+
+function tipoTag(tipo) {
+  if(tipo==='canteiro') return '<span class="tag tag-canteiro">canteiro</span>';
+  if(tipo==='grao')     return '<span class="tag tag-campo">campo</span>';
+  if(tipo==='milpa')    return '<span class="tag tag-campo">milpa</span>';
+  if(tipo==='erva')     return '<span class="tag tag-erva">erva</span>';
+  if(tipo==='flor')     return '<span class="tag tag-erva">flor</span>';
+  if(tipo==='fruta')    return '<span class="tag tag-canteiro" style="background:rgba(249,168,37,0.2);color:#ffe082">fruta</span>';
+  return '';
+}
+
+function renderTabela() {
+  const thead = document.getElementById('theadCalendario');
+  const tbody = document.getElementById('tbodyCalendario');
+
+  thead.innerHTML = `<tr>
+    <th class="cultura-col">Cultura</th>
+    ${MESES.map((m,i) => `<th style="color:${CLIMA[i]?'#64b5f6':'#ff8f00'}">${m}</th>`).join('')}
+  </tr>`;
+
+  tbody.innerHTML = CULTURAS.map(c => {
+    const cels = c.cal.map(celula).join('');
+    const tag  = tipoTag(c.tipo);
+    return `
+      <tr>
+        <td class="cultura-nome"><span class="emoji">${c.emoji}</span>${c.nome}${tag}</td>
+        ${cels}
+      </tr>
+      <tr class="nota-row"><td colspan="13">${c.nota}</td></tr>
+    `;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// ESCALONAMENTO CANTEIROS
+// ─────────────────────────────────────────────
+const CANTEIROS = [
+  {
+    num:1, titulo:'Folhosas & Ervas rápidas', cor:'#4caf50',
+    culturas:['Coentro','Cebolinha','Alface','Rúcula','Manjericão'],
+    ciclo: [
+      { nome:'Lote A', s:'Jan 01', t:'Jan 30', c:'Mar 01', cls:'ciclo-s' },
+      { nome:'Lote B', s:'Jan 15', t:'Feb 14', c:'Mar 15', cls:'ciclo-s' },
+      { nome:'Lote C', s:'Feb 01', t:'Mar 03', c:'Abr 01', cls:'ciclo-s' },
+    ],
+    dica:'Escalonar a cada 15 dias. Sempre 1 lote crescendo, 1 quase pronto, 1 recém transplantado.'
+  },
+  {
+    num:2, titulo:'Solanáceas & Quiabo', cor:'#ff7043',
+    culturas:['Tomate','Pimentão','Pimenta','Quiabo'],
+    ciclo:[
+      { nome:'Ciclo 1', s:'Mar 01', t:'Abr 01', c:'Jun 01', cls:'ciclo-s' },
+      { nome:'Descanso', s:'Jun 15', t:'—', c:'—', cls:'ciclo-r' },
+      { nome:'Ciclo 2', s:'Set 01', t:'Out 01', c:'Dez 01', cls:'ciclo-s' },
+    ],
+    dica:'2 ciclos por ano. Descansar canteiro entre ciclos. Adubar com húmus do minhocário antes do segundo ciclo.'
+  },
+  {
+    num:3, titulo:'Milpa & Leguminosas', cor:'#f9a825',
+    culturas:['Milho BRS Caatingueiro','Feijão-caupi BRS Pujante','Abóbora','Feijão-de-metro'],
+    ciclo:[
+      { nome:'Milpa chuva', s:'Fev 15', t:'Mar 15', c:'Jun 15', cls:'ciclo-s' },
+      { nome:'Descanso', s:'Jul', t:'—', c:'—', cls:'ciclo-r' },
+      { nome:'Feijão seca', s:'Out 15', t:'Nov 15', c:'Jan 15', cls:'ciclo-s' },
+    ],
+    dica:'Milpa nas chuvas (mar-jun). Feijão-caupi na seca com irrigação (nov-jan). Esse canteiro fixa nitrogênio no solo.'
+  },
+  {
+    num:4, titulo:'Ervas permanentes & Flores', cor:'#81c784',
+    culturas:['Capim-limão','Erva-cidreira','Hortelã','Girassol','Cravo-de-defunto'],
+    ciclo:[
+      { nome:'Perenes fixas', s:'Mar', t:'—', c:'Ano todo', cls:'ciclo-s' },
+      { nome:'Girassol', s:'Mar/Set', t:'—', c:'Jun/Dez', cls:'ciclo-c' },
+      { nome:'Flores borda', s:'Mar/Set', t:'—', c:'Contínuo', cls:'ciclo-c' },
+    ],
+    dica:'Canteiro quase permanente. Ervas perenes não precisam replantio. Girassol e flores nas bordas, rotacionando.'
+  },
+];
+
+function renderCanteiros() {
+  const grid = document.getElementById('canteirosGrid');
+  grid.innerHTML = CANTEIROS.map(c => `
+    <div class="canteiro-card">
+      <div class="canteiro-header">
+        <div class="canteiro-num" style="background:${c.cor}">${c.num}</div>
+        <div>
+          <div class="canteiro-title">${c.titulo}</div>
+          <div class="canteiro-dim">5m × 1,4m · 7m²</div>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        ${c.culturas.map(cu => `<span style="display:inline-block;background:rgba(255,255,255,0.06);border-radius:6px;padding:2px 8px;font-size:11px;margin:2px 2px 2px 0;color:var(--sub)">${cu}</span>`).join('')}
+      </div>
+      <div class="ciclo-label">Ciclos do ano:</div>
+      <div class="ciclo-strip">
+        ${c.ciclo.map(cc => `<div class="ciclo-bloco ${cc.cls}" title="${cc.nome}: ${cc.s} → colheita ${cc.c}">${cc.nome.split(' ')[0]}</div>`).join('')}
+      </div>
+      <div style="font-size:11px;color:var(--terra2);line-height:1.5;margin-top:8px">💡 ${c.dica}</div>
+    </div>
+  `).join('');
+
+  // Régua quinzenal
+  const regua = document.getElementById('regraQuinzenal');
+  const linhas = [
+    { data:'01/Mar', sementeira:'Tomate, Pimentão', transplante:'—', colheita:'—' },
+    { data:'15/Mar', sementeira:'Coentro lote B, Alface', transplante:'Tomate (lote de 01/Fev)', colheita:'Coentro lote A' },
+    { data:'01/Abr', sementeira:'Girassol, Flores', transplante:'Coentro lote B', colheita:'—' },
+    { data:'15/Abr', sementeira:'Coentro lote C, Cebolinha', transplante:'Alface (lote 15/Mar)', colheita:'Alface lote anterior' },
+    { data:'01/Mai', sementeira:'Quiabo, Pimenta', transplante:'Coentro lote C', colheita:'Coentro lote B' },
+    { data:'15/Mai', sementeira:'Coentro lote D', transplante:'Quiabo', colheita:'—' },
+    { data:'01/Jun', sementeira:'Feijão-de-metro', transplante:'Coentro lote D', colheita:'Tomate 1º ciclo, Coentro lote C' },
+  ];
+
+  regua.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr>
+          ${['Data','🌱 Sementeira (plantar na bandeja)','🪴 Transplante para canteiro','🥬 Colheita prevista'].map(h=>`<th style="text-align:left;padding:8px 10px;color:var(--sub);border-bottom:1px solid var(--borda);font-size:11px">${h}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${linhas.map((l,i)=>`<tr style="background:${i%2?'rgba(255,255,255,0.02)':'transparent'}">
+          <td style="padding:8px 10px;font-weight:600;color:var(--ouro);white-space:nowrap">${l.data}</td>
+          <td style="padding:8px 10px;color:var(--verde2)">${l.sementeira}</td>
+          <td style="padding:8px 10px;color:var(--sub)">${l.transplante}</td>
+          <td style="padding:8px 10px;color:var(--ouro2)">${l.colheita}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// BANCO DE SEMENTES
+// ─────────────────────────────────────────────
+const TIPO_LABEL = {
+  hortalica:'Hortaliça', erva:'Erva', grao:'Grão', fruta:'Fruta',
+  flor:'Flor', milpa:'Milpa'
+};
+const ORIGEM_LABEL = {
+  propria:'🏠 Própria', vizinho:'🤝 Trocada', embrapa:'🔬 Embrapa',
+  comprada:'🛒 Comprada', doacao:'🎁 Doação'
+};
+const METODO_LABEL = {
+  sementeira:'Sementeira', direto:'Direto', muda:'Muda/Estaca', rizoma:'Rizoma/Bulbo'
+};
+
+let filtroAtivo = 'todos';
+
+function setFiltro(tipo, el) {
+  filtroAtivo = tipo;
+  document.querySelectorAll('#filtrosBanco .tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderBanco();
+}
+
+function renderBanco() {
+  const grid = document.getElementById('sementesGrid');
+  const lista = filtroAtivo === 'todos'
+    ? bancoDeSementes
+    : bancoDeSementes.filter(s => s.tipo === filtroAtivo);
+
+  if(!lista.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="icon">${filtroAtivo==='todos'?'🫙':'🔍'}</div>
+      <p>${filtroAtivo==='todos'
+        ? 'Seu banco de sementes está vazio.<br>Adicione a primeira semente usando o botão acima!'
+        : `Nenhuma semente do tipo <strong>${filtroAtivo}</strong> encontrada.<br>Adicione usando o botão acima.`
+      }</p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = lista.map(s => {
+    const pct = Math.min(100, Math.round((s.estoque/(s.estoqueMax||100))*100));
+    const barCor = pct > 60 ? '#4caf50' : pct > 30 ? '#f9a825' : '#f44336';
+    return `<div class="semente-card">
+      <div class="semente-acoes">
+        <button class="btn-icon" onclick="editarSemente(${s.id})" title="Editar">✏</button>
+        <button class="btn-icon" onclick="excluirSemente(${s.id})" title="Excluir">✕</button>
+      </div>
+      <div class="semente-emoji">${s.emoji||'🌱'}</div>
+      <div class="semente-nome">${s.nome}</div>
+      <div class="semente-var">${s.variante||'Variedade não informada'}</div>
+      <div class="semente-meta">
+        <span class="semente-badge">${TIPO_LABEL[s.tipo]||s.tipo}</span>
+        <span class="semente-badge amarelo">${s.dias||'?'}d ciclo</span>
+        <span class="semente-badge azul">${METODO_LABEL[s.metodo]||s.metodo}</span>
+        <span class="semente-badge terra">${ORIGEM_LABEL[s.origem]||s.origem}</span>
+      </div>
+      ${s.meses ? `<div style="font-size:11px;color:var(--terra2);margin-bottom:8px">📅 Plantar: ${s.meses}</div>` : ''}
+      ${s.notas ? `<div style="font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.5">${s.notas}</div>` : ''}
+      <div class="semente-estoque">
+        <div class="estoque-bar-wrap"><div class="estoque-bar" style="width:${pct}%;background:${barCor}"></div></div>
+        <div class="estoque-val">${s.estoque}g ${pct<30?'⚠ baixo':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function salvarStorage() {
+  localStorage.setItem('banco_sementes', JSON.stringify(bancoDeSementes));
+}
+
+let editandoId = null;
+
+function abrirModal(id=null) {
+  editandoId = id;
+  const modal = document.getElementById('modalOverlay');
+  if(id) {
+    const s = bancoDeSementes.find(x=>x.id===id);
+    document.getElementById('f-emoji').value   = s.emoji||'';
+    document.getElementById('f-nome').value    = s.nome||'';
+    document.getElementById('f-var').value     = s.variante||'';
+    document.getElementById('f-tipo').value    = s.tipo||'hortalica';
+    document.getElementById('f-estoque').value = s.estoque||0;
+    document.getElementById('f-meses').value   = s.meses||'';
+    document.getElementById('f-dias').value    = s.dias||'';
+    document.getElementById('f-metodo').value  = s.metodo||'sementeira';
+    document.getElementById('f-origem').value  = s.origem||'propria';
+    document.getElementById('f-notas').value   = s.notas||'';
+    document.querySelector('.modal-title').textContent = '✏ Editar Semente';
+  } else {
+    ['f-emoji','f-nome','f-var','f-estoque','f-meses','f-dias','f-notas'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-tipo').value   = 'hortalica';
+    document.getElementById('f-metodo').value = 'sementeira';
+    document.getElementById('f-origem').value = 'propria';
+    document.querySelector('.modal-title').textContent = '🌱 Nova Semente';
+  }
+  modal.classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  editandoId = null;
+}
+
+function salvarSemente() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if(!nome) { showToast('⚠ Nome da planta é obrigatório!'); return; }
+  const est = parseInt(document.getElementById('f-estoque').value)||0;
+  const dados = {
+    emoji:   document.getElementById('f-emoji').value.trim()||'🌱',
+    nome,
+    variante:document.getElementById('f-var').value.trim(),
+    tipo:    document.getElementById('f-tipo').value,
+    estoque: est,
+    estoqueMax: Math.max(est*2, 100),
+    meses:   document.getElementById('f-meses').value.trim(),
+    dias:    parseInt(document.getElementById('f-dias').value)||null,
+    metodo:  document.getElementById('f-metodo').value,
+    origem:  document.getElementById('f-origem').value,
+    notas:   document.getElementById('f-notas').value.trim(),
+  };
+  if(editandoId) {
+    const idx = bancoDeSementes.findIndex(x=>x.id===editandoId);
+    bancoDeSementes[idx] = { ...bancoDeSementes[idx], ...dados };
+    showToast('✅ Semente atualizada!');
+  } else {
+    const novoId = Date.now();
+    bancoDeSementes.push({ id: novoId, ...dados });
+    showToast('✅ Semente adicionada ao banco!');
+  }
+  salvarStorage();
+  fecharModal();
+  renderBanco();
+}
+
+function editarSemente(id) { abrirModal(id); }
+
+function excluirSemente(id) {
+  if(!confirm('Remover esta semente do banco?')) return;
+  bancoDeSementes = bancoDeSementes.filter(x=>x.id!==id);
+  salvarStorage();
+  renderBanco();
+  showToast('🗑 Semente removida.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// Fechar modal clicando fora
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if(e.target === this) fecharModal();
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderClima();
+renderTabela();
+renderCanteiros();
+renderBanco();
+</script>
+</body>
+</html>
