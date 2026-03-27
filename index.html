@@ -241,6 +241,38 @@ td.cultura-nome .tag {
 .acao-tag.baixo   { background: rgba(141,110,99,0.2);  color: var(--terra2); border: 1px solid rgba(141,110,99,0.35); }
 .acao-empty { text-align: center; padding: 14px; color: var(--terra2); font-size: 12px; background: var(--bg3); border-radius: 10px; }
 
+/* ── LISTA DE COMPRAS ── */
+.compras-grupo { margin-bottom: 24px; }
+.compras-grupo-titulo {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--borda); margin-bottom: 10px;
+}
+.compras-lista { display: flex; flex-direction: column; gap: 6px; }
+.compra-item {
+  background: var(--bg3); border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.compra-check {
+  width: 18px; height: 18px; border: 1.5px solid var(--borda);
+  border-radius: 4px; flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.compra-check:hover { border-color: var(--verde); }
+.compra-check.checked { background: var(--verde); border-color: var(--verde); }
+.compra-check.checked::after { content: '✓'; font-size: 11px; color: #fff; font-weight: 700; }
+.compra-corpo { flex: 1; }
+.compra-nome { font-weight: 600; font-size: 13px; }
+.compra-motivo { font-size: 11px; color: var(--terra2); margin-top: 2px; }
+.compra-pri {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 99px; flex-shrink: 0; white-space: nowrap;
+}
+.pri-urgente { background: rgba(244,67,54,0.18); color: #ef9a9a; border: 1px solid rgba(244,67,54,0.3); }
+.pri-alto    { background: rgba(249,168,37,0.18); color: var(--ouro2); border: 1px solid rgba(249,168,37,0.3); }
+.pri-medio   { background: rgba(66,165,245,0.18); color: #90caf9; border: 1px solid rgba(66,165,245,0.3); }
+
 /* ── MODAL ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -404,6 +436,13 @@ td.cultura-nome .tag {
   <div class="resumo-bar" id="acoesResumo"></div>
 
   <div id="acoesConteudo"></div>
+
+  <hr style="border:none;border-top:1px solid var(--borda);margin:28px 0">
+
+  <div class="sec-title" style="font-size:18px">🛒 Lista de Compras — Mai/Jun 2026</div>
+  <div class="sec-sub" style="margin-bottom:20px">Sementes que faltam no banco para o plantio de maio/junho. Comprar com validade mínima 2027+. Clique para marcar como comprada.</div>
+
+  <div id="listaCompras"></div>
 
 </div>
 
@@ -1093,6 +1132,103 @@ function renderAcoes() {
 }
 
 // ─────────────────────────────────────────────
+// LISTA DE COMPRAS MAI/JUN 2026
+// ─────────────────────────────────────────────
+const LISTA_COMPRAS_KEY = 'lista_compras_maijun2026';
+
+const COMPRAS = [
+  // URGENTE
+  { id:'c1', pri:'urgente', emoji:'🧅', nome:'Cebola Crioula ou BRS Alfa Tropical',
+    motivo:'Atual (300mg) vence ABR/26 — próximo mês. Comprar nova embalagem val 2027+. Plantar sementeira em abr-mai/26.',
+    qtd:'1 pct (min. 300mg)', grupo:'urgente' },
+  // ALTO
+  { id:'c2', pri:'alto', emoji:'🫘', nome:'Feijão-caupi BRS Pujante',
+    motivo:'Essencial para o Sisteminha Embrapa. Não está no banco. Fixa nitrogênio no solo. Plantar direto em mai.',
+    qtd:'50g+ (planta em fileiras)', grupo:'alto' },
+  { id:'c3', pri:'alto', emoji:'🌿', nome:'Coentro (variedade para calor)',
+    motivo:'Tempero base — ausente no banco. Escalonar a cada 15 dias. Buscar variedade "Santo" ou similar.',
+    qtd:'5–10g', grupo:'alto' },
+  { id:'c4', pri:'alto', emoji:'🧅', nome:'Cebolinha (Allium fistulosum)',
+    motivo:'Tempero essencial — ausente no banco. Produz o ano todo, fácil de cultivar.',
+    qtd:'1 pct (min. 300mg)', grupo:'alto' },
+  { id:'c5', pri:'alto', emoji:'🌿', nome:'Manjericão',
+    motivo:'Não está no banco. Época ideal mai/jun. Companheiro do tomate, repele pulgões.',
+    qtd:'1 pct', grupo:'alto' },
+  { id:'c6', pri:'alto', emoji:'🌸', nome:'Cravo-de-defunto / Tagetes',
+    motivo:'Repelente natural de nematoides e pulgões. Bordadura dos canteiros. Essencial no sistema orgânico.',
+    qtd:'1 pct', grupo:'alto' },
+  { id:'c7', pri:'alto', emoji:'🌽', nome:'Milho BRS Caatingueiro',
+    motivo:'Necessário para o consórcio Milpa (Milho+Feijão+Abóbora). Variedade Embrapa para semiárido PE.',
+    qtd:'200g+', grupo:'alto' },
+  { id:'c8', pri:'alto', emoji:'🎃', nome:'Abóbora Jacarezinho ou Cabotiá',
+    motivo:'Terceira perna do consórcio Milpa. Não está no banco. Plantar nas chuvas mai.',
+    qtd:'1 pct', grupo:'alto' },
+  // MÉDIO
+  { id:'c9', pri:'medio', emoji:'🌿', nome:'Salsinha (Salsa)',
+    motivo:'Não está no banco. Ciclo 70–80 dias, germinação lenta. Plantar mai para colheita ago.',
+    qtd:'1 pct', grupo:'medio' },
+  { id:'c10', pri:'medio', emoji:'🌻', nome:'Girassol',
+    motivo:'Atrai polinizadores, sementes comestíveis. Plantar bordas em mai. Ciclo 70–90 dias.',
+    qtd:'1 pct', grupo:'medio' },
+  { id:'c11', pri:'medio', emoji:'🥦', nome:'Brócolis Ramoso Verde Piracicaba',
+    motivo:'Mai ainda dá no PE (bordeline). Mais tolerante ao calor que híbridos. Ciclo 70–90 dias.',
+    qtd:'1 pct', grupo:'medio' },
+];
+
+const GRUPOS_COMPRAS = [
+  { id:'urgente', titulo:'🔴 URGENTE — Comprar esta semana', cls:'urgente' },
+  { id:'alto',    titulo:'🟡 ALTA PRIORIDADE — Comprar em abril', cls:'aviso' },
+  { id:'medio',   titulo:'🔵 MÉDIO — Comprar antes de maio', cls:'plantar' },
+];
+
+function carregarComprasFeitas() {
+  return JSON.parse(localStorage.getItem(LISTA_COMPRAS_KEY) || '[]');
+}
+
+function salvarCompraFeita(id, feita) {
+  const feitas = carregarComprasFeitas();
+  const novo = feita ? [...new Set([...feitas, id])] : feitas.filter(x => x !== id);
+  localStorage.setItem(LISTA_COMPRAS_KEY, JSON.stringify(novo));
+}
+
+function toggleCompra(id) {
+  const feitas = carregarComprasFeitas();
+  const jaMarcada = feitas.includes(id);
+  salvarCompraFeita(id, !jaMarcada);
+  renderListaCompras();
+}
+
+function renderListaCompras() {
+  const feitas = carregarComprasFeitas();
+  const el = document.getElementById('listaCompras');
+  if(!el) return;
+
+  el.innerHTML = GRUPOS_COMPRAS.map(g => {
+    const itens = COMPRAS.filter(c => c.grupo === g.id);
+    const pendentes = itens.filter(c => !feitas.includes(c.id)).length;
+    return `<div class="compras-grupo">
+      <div class="compras-grupo-titulo acao-secao-titulo ${g.cls}">
+        ${g.titulo}
+        <span style="font-weight:400;opacity:.6">${pendentes}/${itens.length} pendentes</span>
+      </div>
+      <div class="compras-lista">
+        ${itens.map(c => {
+          const marcada = feitas.includes(c.id);
+          return `<div class="compra-item" style="${marcada?'opacity:.5':''}">
+            <div class="compra-check ${marcada?'checked':''}" onclick="toggleCompra('${c.id}')"></div>
+            <div class="compra-corpo">
+              <div class="compra-nome">${c.emoji} ${c.nome} <span style="font-size:11px;font-weight:400;color:var(--terra2)">${c.qtd}</span></div>
+              <div class="compra-motivo">${c.motivo}</div>
+            </div>
+            <span class="compra-pri pri-${c.pri}">${c.pri.toUpperCase()}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 renderClima();
@@ -1100,6 +1236,7 @@ renderTabela();
 renderCanteiros();
 renderBanco();
 renderAcoes();
+renderListaCompras();
 </script>
 </body>
 </html>
