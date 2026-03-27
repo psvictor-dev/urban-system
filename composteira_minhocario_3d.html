@@ -137,7 +137,9 @@ sun.shadow.camera.top = 15;
 sun.shadow.camera.bottom = -15;
 scene.add(sun);
 
-scene.add(new THREE.DirectionalLight(0xaaddff, 0.25).position.set(-8, 6, -6));
+const fill2 = new THREE.DirectionalLight(0xaaddff, 0.25);
+fill2.position.set(-8, 6, -6);
+scene.add(fill2);
 
 // ── Materials ────────────────────────────────────────────────────────────────
 const MAT = {
