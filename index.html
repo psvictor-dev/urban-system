@@ -565,26 +565,27 @@ const CULTURAS = [
 ];
 
 const SEMENTES_PADRAO = [
-  { id:1, emoji:'🌽', nome:'Milho', variante:'BRS Caatingueiro', tipo:'milpa', estoque:200, estoqueMax:300, meses:'Mar, Abr', dias:90, metodo:'direto', origem:'embrapa', notas:'Variedade adaptada ao semiárido. Alta tolerância à seca.' },
-  { id:2, emoji:'🫘', nome:'Feijão-caupi', variante:'BRS Pujante', tipo:'grao', estoque:180, estoqueMax:250, meses:'Mar, Abr, Nov', dias:68, metodo:'direto', origem:'embrapa', notas:'Tolerante ao calor. Excelente proteína. Guardar os melhores grãos.' },
-  { id:3, emoji:'🎃', nome:'Abóbora', variante:'Cabotiá crioula', tipo:'milpa', estoque:45, estoqueMax:80, meses:'Mar, Abr', dias:110, metodo:'direto', origem:'propria', notas:'Salva da colheita anterior. Boa resistência local.' },
-  { id:4, emoji:'🍅', nome:'Tomate', variante:'Santa Clara', tipo:'hortalica', estoque:12, estoqueMax:30, meses:'Mar, Abr, Out', dias:75, metodo:'sementeira', origem:'comprada', notas:'Comprar sementes novas a cada ciclo.' },
-  { id:5, emoji:'🌿', nome:'Manjericão', variante:'Italiano', tipo:'erva', estoque:8, estoqueMax:20, meses:'Ano todo', dias:45, metodo:'sementeira', origem:'propria', notas:'Guardar sementes das flores antes de secar.' },
-  { id:6, emoji:'🌻', nome:'Girassol', variante:'Anão decorativo', tipo:'flor', estoque:30, estoqueMax:60, meses:'Mar, Abr, Set', dias:80, metodo:'direto', origem:'doacao', notas:'Atrai abelhas. Plantar nas bordas dos canteiros.' },
-  { id:7, emoji:'🥗', nome:'Rúcula', variante:'Cultivada', tipo:'hortalica', estoque:15, estoqueMax:30, meses:'Ano todo (evitar mai-jul)', dias:35, metodo:'sementeira', origem:'comprada', notas:'Ciclo curtíssimo. Escalonar a cada 15 dias.' },
-  { id:8, emoji:'🥬', nome:'Couve', variante:'Manteiga', tipo:'hortalica', estoque:10, estoqueMax:25, meses:'Mar, Abr, Set, Out', dias:60, metodo:'sementeira', origem:'comprada', notas:'Perene — colher folhas de fora para dentro. Rebrota por anos.' },
-  { id:9, emoji:'🥦', nome:'Brócolis', variante:'Ramoso Verde Piracicaba', tipo:'hortalica', estoque:8, estoqueMax:20, meses:'Abr, Mai, Set, Out', dias:80, metodo:'sementeira', origem:'comprada', notas:'Mais tolerante ao calor que híbridos. Colher antes de abrir as flores.' },
-  { id:10, emoji:'🌿', nome:'Salsinha', variante:'Comum lisa', tipo:'erva', estoque:6, estoqueMax:20, meses:'Ano todo', dias:75, metodo:'sementeira', origem:'comprada', notas:'Germinação lenta (15-25 dias). Cobrir sementeira com palha até germinar.' },
-  { id:11, emoji:'🥒', nome:'Abobrinha', variante:'Italiana', tipo:'hortalica', estoque:20, estoqueMax:40, meses:'Mar, Abr, Mai, Out, Nov', dias:50, metodo:'direto', origem:'comprada', notas:'Colher jovem (15-20cm). Produção contínua se não deixar maturar.' },
-  { id:12, emoji:'🥕', nome:'Cenoura', variante:'Brasília', tipo:'hortalica', estoque:10, estoqueMax:25, meses:'Mar, Abr, Set, Out', dias:80, metodo:'direto', origem:'comprada', notas:'Semeio direto em sulcos. Solo profundo e destorroado. Não transplantar.' },
-  { id:13, emoji:'🍌', nome:'Banana', variante:'Pacovan', tipo:'fruta', estoque:0, estoqueMax:10, meses:'Jan, Fev, Mar, Out, Nov, Dez', dias:365, metodo:'muda', origem:'vizinho', notas:'Plantar por chifres (mudas). Produz penca contínua após 9-12 meses.' },
-  { id:14, emoji:'🍍', nome:'Abacaxi', variante:'Pérola', tipo:'fruta', estoque:0, estoqueMax:10, meses:'Mar, Abr, Set, Out', dias:540, metodo:'muda', origem:'propria', notas:'Plantar por filhotes da coroa. Ciclo 18-24 meses. Resistente à seca.' },
-  { id:15, emoji:'🟡', nome:'Maracujá', variante:'BRS Sol do Cerrado', tipo:'fruta', estoque:15, estoqueMax:30, meses:'Mar, Abr, Set, Out', dias:210, metodo:'sementeira', origem:'embrapa', notas:'Trepadeira — precisa de espaldeira. Produz 2-3 anos. Atrai polinizadores.' },
+  // ── Compra 26/03/2026 · R$2,19/pct ──────────────────────────────────────
+  { id:1,  emoji:'🥒', nome:'Abobrinha',      variante:'Caserta Italiana',        tipo:'hortalica', estoque:2000, estoqueMax:2000, meses:'Mar, Abr, Set, Out',       dias:50,  metodo:'direto',     origem:'comprada', notas:'2g · val 06/27 · compra 26/03 R$2,19. Colher jovem (15–20 cm).' },
+  { id:2,  emoji:'🥬', nome:'Repolho',         variante:'Verde',                   tipo:'hortalica', estoque:500,  estoqueMax:500,  meses:'Abr, Mai, Set, Out',       dias:90,  metodo:'sementeira', origem:'comprada', notas:'500mg · val 07/27 · compra 26/03 R$2,19.' },
+  { id:3,  emoji:'🥕', nome:'Cenoura',         variante:'Brasília Irecê',          tipo:'hortalica', estoque:700,  estoqueMax:700,  meses:'Abr, Mai, Set, Out',       dias:80,  metodo:'direto',     origem:'comprada', notas:'700mg · val 06/27 · compra 26/03 R$2,19. Solo fundo e destorroado.' },
+  { id:4,  emoji:'🥗', nome:'Alface',          variante:'Americana',               tipo:'hortalica', estoque:700,  estoqueMax:700,  meses:'Abr, Mai, Ago, Set',       dias:60,  metodo:'sementeira', origem:'comprada', notas:'700mg · val 06/27 · compra 26/03 R$2,19.' },
+  { id:5,  emoji:'🌿', nome:'Arruda',          variante:'',                        tipo:'erva',      estoque:100,  estoqueMax:100,  meses:'Ano todo',                  dias:180, metodo:'sementeira', origem:'comprada', notas:'100mg · val 03/27 · compra 26/03 R$2,19. Repelente natural — plantar nas bordas.' },
+  { id:6,  emoji:'🍅', nome:'Tomate',          variante:'Santa Cruz Kada Gigante', tipo:'hortalica', estoque:400,  estoqueMax:400,  meses:'Mar, Abr, Out',             dias:80,  metodo:'sementeira', origem:'comprada', notas:'400mg · val 06/27 · compra 26/03 R$2,19.' },
+  { id:7,  emoji:'🟣', nome:'Beterraba',       variante:'Katrina',                 tipo:'hortalica', estoque:1200, estoqueMax:1200, meses:'Abr, Mai, Set, Out',       dias:65,  metodo:'direto',     origem:'comprada', notas:'1,2g · val 06/27 · compra 26/03 R$2,19. Semeio direto em sulcos.' },
+  // ── Compra 26/03/2026 · R$1,99/pct ──────────────────────────────────────
+  { id:8,  emoji:'🍋', nome:'Melissa',         variante:'Erva-cidreira',           tipo:'erva',      estoque:100,  estoqueMax:100,  meses:'Ano todo',                  dias:90,  metodo:'sementeira', origem:'comprada', notas:'100mg · val 07/27 · compra 26/03 R$1,99. Calmante, repelente de mosquito.' },
+  { id:9,  emoji:'🥗', nome:'Rúcula',          variante:'Gigante Folha Larga',     tipo:'hortalica', estoque:500,  estoqueMax:500,  meses:'Ano todo (evitar mai-jul)', dias:35,  metodo:'sementeira', origem:'comprada', notas:'500mg · val 07/27 · compra 26/03 R$1,99. Escalonar a cada 15 dias.' },
+  { id:10, emoji:'🌿', nome:'Quiabo',          variante:'Santa Cruz 47',           tipo:'hortalica', estoque:4000, estoqueMax:4000, meses:'Mar, Abr, Mai',             dias:60,  metodo:'direto',     origem:'comprada', notas:'4g (2 pcts × 2g) · val 07/27 · compra 26/03 R$1,99/pct.' },
+  { id:11, emoji:'🧅', nome:'Alho-porro',      variante:'Nero',                    tipo:'hortalica', estoque:300,  estoqueMax:300,  meses:'Abr, Mai, Jun',             dias:120, metodo:'direto',     origem:'comprada', notas:'300mg · val 01/27 · compra 26/03 R$1,99. ⚠ Usar antes de jan/27.' },
+  { id:12, emoji:'🍒', nome:'Tomate Cereja',   variante:'',                        tipo:'hortalica', estoque:150,  estoqueMax:150,  meses:'Mar, Abr, Out',             dias:70,  metodo:'sementeira', origem:'comprada', notas:'150mg · val 07/27 · compra 26/03 R$1,99.' },
 ];
 
 // Merge: keeps user edits, adds new default seeds not yet in localStorage
+// v2 = chave nova após reset de 26/03/2026
+const LS_KEY = 'banco_sementes_v2';
 function carregarBanco() {
-  const salvo = JSON.parse(localStorage.getItem('banco_sementes') || 'null');
+  const salvo = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
   if (!salvo) return SEMENTES_PADRAO;
   const idsExistentes = new Set(salvo.map(s => s.id));
   const novas = SEMENTES_PADRAO.filter(s => !idsExistentes.has(s.id));
@@ -830,7 +831,7 @@ function renderBanco() {
 }
 
 function salvarStorage() {
-  localStorage.setItem('banco_sementes', JSON.stringify(bancoDeSementes));
+  localStorage.setItem(LS_KEY, JSON.stringify(bancoDeSementes));
 }
 
 let editandoId = null;
