@@ -579,11 +579,20 @@ const SEMENTES_PADRAO = [
   { id:10, emoji:'🌿', nome:'Quiabo',          variante:'Santa Cruz 47',           tipo:'hortalica', estoque:4000, estoqueMax:4000, meses:'Mar, Abr, Mai',             dias:60,  metodo:'direto',     origem:'comprada', notas:'4g (2 pcts × 2g) · val 07/27 · compra 26/03 R$1,99/pct.' },
   { id:11, emoji:'🧅', nome:'Alho-porro',      variante:'Nero',                    tipo:'hortalica', estoque:300,  estoqueMax:300,  meses:'Abr, Mai, Jun',             dias:120, metodo:'direto',     origem:'comprada', notas:'300mg · val 01/27 · compra 26/03 R$1,99. ⚠ Usar antes de jan/27.' },
   { id:12, emoji:'🍒', nome:'Tomate Cereja',   variante:'',                        tipo:'hortalica', estoque:150,  estoqueMax:150,  meses:'Mar, Abr, Out',             dias:70,  metodo:'sementeira', origem:'comprada', notas:'150mg · val 07/27 · compra 26/03 R$1,99.' },
+  // ── Sementes guardadas · Compra 31/12/2025 · R$2,00/pct ──────────────────
+  { id:13, emoji:'🧅', nome:'Cebola',          variante:'072 Crioula',             tipo:'hortalica', estoque:300,  estoqueMax:300,  meses:'Abr, Mai, Jun',             dias:100, metodo:'sementeira', origem:'comprada', notas:'300mg · val abr/26 · compra 31/12 R$2,00. ⚠ Vencimento próximo — plantar urgente.' },
+  { id:14, emoji:'🫑', nome:'Pimentão',        variante:'All Big',                 tipo:'hortalica', estoque:250,  estoqueMax:250,  meses:'Mar, Abr, Set, Out',       dias:90,  metodo:'sementeira', origem:'comprada', notas:'250mg · val jan/27 · compra 31/12 R$2,00.' },
+  { id:15, emoji:'🥬', nome:'Couve Manteiga',  variante:'da Georgia',              tipo:'hortalica', estoque:500,  estoqueMax:500,  meses:'Ano todo',                  dias:60,  metodo:'sementeira', origem:'comprada', notas:'500mg · val out/26 · compra 31/12 R$2,00.' },
+  { id:16, emoji:'🥗', nome:'Rúcula',          variante:'Folha Larga',             tipo:'hortalica', estoque:1000, estoqueMax:1000, meses:'Ano todo (evitar mai-jul)', dias:35,  metodo:'direto',     origem:'comprada', notas:'1g · val 05/27 · compra 31/12 R$2,00. Escalonar a cada 15 dias.' },
+  { id:17, emoji:'🌼', nome:'Camomila',        variante:'Maçanilha',               tipo:'erva',      estoque:120,  estoqueMax:120,  meses:'Abr, Mai, Set, Out',       dias:60,  metodo:'direto',     origem:'comprada', notas:'120mg · val 06/27 · compra 31/12 R$2,00. Chá calmante.' },
+  { id:18, emoji:'🌿', nome:'Anis',            variante:'Erva-doce',               tipo:'erva',      estoque:150,  estoqueMax:150,  meses:'Abr, Mai, Set, Out',       dias:90,  metodo:'direto',     origem:'comprada', notas:'150mg · val 06/27 · compra 31/12 R$2,00.' },
+  { id:19, emoji:'🌸', nome:'Margarida',       variante:'Gigante Branca',          tipo:'flor',      estoque:150,  estoqueMax:150,  meses:'Abr, Mai, Ago, Set',       dias:90,  metodo:'sementeira', origem:'comprada', notas:'150mg · val 06/27 · compra 31/12 R$2,00. Atrai polinizadores.' },
+  { id:20, emoji:'🌿', nome:'Tomilho',         variante:'Thyme',                   tipo:'erva',      estoque:120,  estoqueMax:120,  meses:'Ano todo',                  dias:14,  metodo:'sementeira', origem:'comprada', notas:'120mg · val 02/27 · compra 31/12 R$2,00. Germinação lenta (14–21 dias).' },
 ];
 
 // Merge: keeps user edits, adds new default seeds not yet in localStorage
-// v2 = chave nova após reset de 26/03/2026
-const LS_KEY = 'banco_sementes_v2';
+// v3 = chave nova após adição de sementes guardadas (31/12/2025)
+const LS_KEY = 'banco_sementes_v3';
 function carregarBanco() {
   const salvo = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
   if (!salvo) return SEMENTES_PADRAO;
