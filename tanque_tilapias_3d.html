@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanque de Tilápias — Sisteminha Embrapa</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --verde:   #2E7D32;
+    --verde2:  #4CAF50;
+    --marrom:  #5D4037;
+    --palha:   #FFF8E1;
+    --laranja: #FF7043;
+    --azul:    #1565C0;
+    --azul2:   #42A5F5;
+    --bg:      #0d1a0e;
+    --panel:   rgba(255,255,255,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    color: #e8f5e9;
+    font-family: 'Nunito', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.5);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon { font-size: 24px; }
+  .logo-text { font-weight: 800; font-size: 15px; line-height: 1.2; }
+  .logo-sub  { font-size: 10px; color: var(--azul2); font-family: 'Space Mono', monospace; letter-spacing: 1px; }
+
+  .controls {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .btn {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #e8f5e9;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .btn:hover, .btn.active {
+    background: var(--azul);
+    border-color: var(--azul2);
+    color: #fff;
+  }
+
+  #canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  canvas { display: block; }
+
+  .info-panel {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: rgba(0,0,0,0.68);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 11px;
+    line-height: 1.8;
+    backdrop-filter: blur(8px);
+    max-width: 210px;
+  }
+  .info-panel h4 {
+    font-size: 12px;
+    color: var(--azul2);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: .5px;
+  }
+  .info-row { display: flex; justify-content: space-between; gap: 10px; }
+  .info-val { color: #FFD54F; font-weight: 700; }
+
+  .legend {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(0,0,0,0.68);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 11px;
+    backdrop-filter: blur(8px);
+    line-height: 2;
+  }
+  .legend h4 {
+    font-size: 11px;
+    color: var(--azul2);
+    margin-bottom: 4px;
+    font-family: 'Space Mono', monospace;
+  }
+  .leg-item { display: flex; align-items: center; gap: 7px; }
+  .leg-dot  { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  .drag-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255,255,255,0.28);
+    font-size: 13px;
+    pointer-events: none;
+    text-align: center;
+    transition: opacity 1s;
+  }
+
+  .badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: var(--azul);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: .5px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">🐟</span>
+    <div>
+      <div class="logo-text">Tanque de Tilápias</div>
+      <div class="logo-sub">SISTEMINHA EMBRAPA · 3D</div>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="btn active" onclick="setView('iso',this)">Isométrico</button>
+    <button class="btn" onclick="setView('topo',this)">Topo</button>
+    <button class="btn" onclick="setView('frente',this)">Frente</button>
+    <button class="btn" onclick="setView('lateral',this)">Lateral</button>
+    <button class="btn" onclick="setView('corte',this)">✂ Corte</button>
+    <button class="btn" onclick="toggleAuto(this)">▶ Auto</button>
+  </div>
+</header>
+
+<div id="canvas-container">
+  <canvas id="c"></canvas>
+
+  <div class="badge">Tanque Tilápias · Ø 6m · 28.000L</div>
+
+  <div class="drag-hint" id="hint">
+    🖱 Arraste para girar · Scroll para zoom
+  </div>
+
+  <div class="info-panel">
+    <h4>ESPECIFICAÇÕES</h4>
+    <div class="info-row"><span>Diâmetro</span><span class="info-val">6m</span></div>
+    <div class="info-row"><span>Profundidade</span><span class="info-val">1,0m</span></div>
+    <div class="info-row"><span>Volume</span><span class="info-val">~28.000L</span></div>
+    <div class="info-row"><span>Tilápias</span><span class="info-val">~200 und.</span></div>
+    <div class="info-row"><span>Prod./ciclo</span><span class="info-val">~60kg</span></div>
+    <div class="info-row"><span>Ciclo</span><span class="info-val">6–8 meses</span></div>
+  </div>
+
+  <div class="legend">
+    <h4>LEGENDA</h4>
+    <div class="leg-item"><div class="leg-dot" style="background:#9E9E9E"></div>Parede (concreto)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#1E88E5;opacity:.8"></div>Água</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#FF7043"></div>Tilápias</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#B0BEC5"></div>Aerador</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#546E7A"></div>Tubulação</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#66BB6A;opacity:.5"></div>Sombrite</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ─── SCENE SETUP ────────────────────────────────────────────────
+const container = document.getElementById('canvas-container');
+const hint      = document.getElementById('hint');
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.setClearColor(0x0d1a0e);
+
+const scene = new THREE.Scene();
+scene.fog   = new THREE.FogExp2(0x0d1a0e, 0.022);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+camera.position.set(12, 9, 14);
+camera.lookAt(0, 0.6, 0);
+
+function resize() {
+  const w = container.clientWidth, h = container.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ─── LIGHTS ─────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0xcce8ff, 0.55);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xfff0cc, 1.5);
+sun.position.set(10, 20, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near   = 0.5;
+sun.shadow.camera.far    = 80;
+sun.shadow.camera.left   = -12;
+sun.shadow.camera.right  = 12;
+sun.shadow.camera.top    = 12;
+sun.shadow.camera.bottom = -12;
+scene.add(sun);
+
+const fill = new THREE.DirectionalLight(0x90caf9, 0.5);
+fill.position.set(-8, 5, -10);
+scene.add(fill);
+
+// underwater bounce light — blue tint from below water
+const underLight = new THREE.PointLight(0x1565C0, 1.2, 8);
+underLight.position.set(0, 0.3, 0);
+scene.add(underLight);
+
+// ─── MATERIALS ──────────────────────────────────────────────────
+const MAT = {
+  ground:    new THREE.MeshLambertMaterial({ color: 0x6D4C2A }),
+  gravel:    new THREE.MeshLambertMaterial({ color: 0x9E8B6A }),
+  concrete:  new THREE.MeshLambertMaterial({ color: 0xB0A090 }),
+  concreteIn:new THREE.MeshLambertMaterial({ color: 0xC8B8A8 }),
+  water:     new THREE.MeshLambertMaterial({ color: 0x1565C0, transparent: true, opacity: 0.82 }),
+  waterSurf: new THREE.MeshLambertMaterial({ color: 0x42A5F5, transparent: true, opacity: 0.5,  side: THREE.DoubleSide }),
+  fishOrange:new THREE.MeshLambertMaterial({ color: 0xE64A19 }),
+  fishSilver:new THREE.MeshLambertMaterial({ color: 0xB0BEC5 }),
+  fishGold:  new THREE.MeshLambertMaterial({ color: 0xFFB300 }),
+  pipeGray:  new THREE.MeshLambertMaterial({ color: 0x90A4AE }),
+  pipeDark:  new THREE.MeshLambertMaterial({ color: 0x546E7A }),
+  wood:      new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
+  woodDark:  new THREE.MeshLambertMaterial({ color: 0x5D4037 }),
+  shade:     new THREE.MeshLambertMaterial({ color: 0x388E3C, transparent: true, opacity: 0.22, side: THREE.DoubleSide }),
+  bubbles:   new THREE.MeshLambertMaterial({ color: 0x90CAF9, transparent: true, opacity: 0.55 }),
+};
+
+// ─── HELPERS ────────────────────────────────────────────────────
+function box(w, h, d, mat, x, y, z, rx=0, ry=0, rz=0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  m.rotation.set(rx, ry, rz);
+  m.castShadow = true;
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+function cyl(rt, rb, h, seg, mat, x, y, z, rx=0, ry=0) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+  m.position.set(x, y, z);
+  m.rotation.x = rx;
+  m.rotation.y = ry;
+  m.castShadow = true;
+  m.receiveShadow = true;
+  scene.add(m);
+  return m;
+}
+
+// ─── GROUND DISC — compacted earth Ø9m ──────────────────────────
+const groundMesh = new THREE.Mesh(
+  new THREE.CircleGeometry(9, 64),
+  MAT.ground
+);
+groundMesh.rotation.x = -Math.PI / 2;
+groundMesh.receiveShadow = true;
+scene.add(groundMesh);
+
+// large flat background ground
+const bgGround = new THREE.Mesh(
+  new THREE.PlaneGeometry(60, 60),
+  new THREE.MeshLambertMaterial({ color: 0x3E2723 })
+);
+bgGround.rotation.x = -Math.PI / 2;
+bgGround.position.y = -0.01;
+bgGround.receiveShadow = true;
+scene.add(bgGround);
+
+// gravel ring around tank base (Ø3.2m → Ø5m ring)
+const gravelRingGeo = new THREE.RingGeometry(3.25, 5.0, 64);
+const gravelRing = new THREE.Mesh(gravelRingGeo, MAT.gravel);
+gravelRing.rotation.x = -Math.PI / 2;
+gravelRing.position.y = 0.005;
+gravelRing.receiveShadow = true;
+scene.add(gravelRing);
+
+// some scattered grass tufts far out
+const tuffMat = new THREE.MeshLambertMaterial({ color: 0x558B2F });
+for (let i = 0; i < 40; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const r = 5.5 + Math.random() * 3;
+  const gx = Math.cos(angle) * r;
+  const gz = Math.sin(angle) * r;
+  const h = 0.05 + Math.random() * 0.07;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.25, h, 0.25), tuffMat);
+  m.position.set(gx, h / 2, gz);
+  scene.add(m);
+}
+
+// ─── TANK WALL — outer cylinder + inner cylinder ─────────────────
+// Outer wall: r=3.2, wall thickness ~0.25m → inner face r≈2.95
+const wallH = 1.2;
+const wallY = wallH / 2;
+
+const outerWall = cyl(3.2, 3.2, wallH, 64, MAT.concrete, 0, wallY, 0);
+const innerWall = cyl(2.95, 2.95, wallH + 0.02, 64, MAT.concreteIn, 0, wallY, 0);
+
+// wall top rim (thin flat ring)
+const rimGeo = new THREE.RingGeometry(2.95, 3.22, 64);
+const rim = new THREE.Mesh(rimGeo, MAT.concrete);
+rim.rotation.x = -Math.PI / 2;
+rim.position.y = wallH + 0.01;
+rim.receiveShadow = true;
+scene.add(rim);
+
+// tank floor (concrete disc inside)
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(2.95, 64), MAT.concreteIn);
+floorDisc.rotation.x = -Math.PI / 2;
+floorDisc.position.y = 0.01;
+floorDisc.receiveShadow = true;
+scene.add(floorDisc);
+
+// ─── WATER BODY ─────────────────────────────────────────────────
+const waterH = 0.9;
+const water = cyl(2.9, 2.9, waterH, 64, MAT.water, 0, waterH / 2 + 0.02, 0);
+
+// water surface (very thin disc, shimmer)
+const waterSurf = new THREE.Mesh(
+  new THREE.CircleGeometry(2.88, 64),
+  MAT.waterSurf
+);
+waterSurf.rotation.x = -Math.PI / 2;
+waterSurf.position.y = waterH + 0.025;
+scene.add(waterSurf);
+
+// ─── FISH ──────────────────────────────────────────────────────
+// Each fish: scaled ellipsoid body + small tail fin
+const fishData = [];
+const fishCount = 15;
+const fishColors = [
+  MAT.fishOrange, MAT.fishOrange, MAT.fishOrange,
+  MAT.fishSilver, MAT.fishSilver, MAT.fishSilver,
+  MAT.fishGold,   MAT.fishGold,
+  MAT.fishOrange, MAT.fishSilver, MAT.fishGold,
+  MAT.fishOrange, MAT.fishSilver, MAT.fishOrange, MAT.fishSilver,
+];
+
+function makeFish(colorMat) {
+  const g = new THREE.Group();
+
+  // body — stretched sphere
+  const bodyGeo = new THREE.SphereGeometry(0.18, 10, 7);
+  const body = new THREE.Mesh(bodyGeo, colorMat);
+  body.scale.set(2.0, 0.6, 1.0);
+  g.add(body);
+
+  // tail fin — thin flat triangle-like box
+  const tailMat = new THREE.MeshLambertMaterial({
+    color: colorMat.color,
+    transparent: true,
+    opacity: 0.75,
+  });
+  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 0.18), tailMat);
+  tail.position.set(-0.38, 0, 0);
+  g.add(tail);
+
+  // dorsal fin
+  const dorsalMat = new THREE.MeshLambertMaterial({
+    color: colorMat.color,
+    transparent: true,
+    opacity: 0.65,
+  });
+  const dorsal = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.03), dorsalMat);
+  dorsal.position.set(0.05, 0.12, 0);
+  g.add(dorsal);
+
+  // eye
+  const eye = new THREE.Mesh(
+    new THREE.SphereGeometry(0.03, 6, 4),
+    new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
+  );
+  eye.position.set(0.32, 0.04, 0.1);
+  g.add(eye);
+
+  return g;
+}
+
+for (let i = 0; i < fishCount; i++) {
+  const fish = makeFish(fishColors[i]);
+  // random orbital params
+  const radius    = 1.5 + Math.random() * 0.7;    // 1.5 – 2.2m
+  const depth     = 0.08 + Math.random() * 0.68;  // Y in water column
+  const speed     = 0.28 + Math.random() * 0.25;  // rad/sec
+  const phase     = Math.random() * Math.PI * 2;
+  const direction = Math.random() < 0.5 ? 1 : -1; // CW or CCW
+  const wobble    = 0.04 + Math.random() * 0.06;  // vertical bob amplitude
+  const wobbleSpd = 1.5  + Math.random() * 1.5;
+
+  fish.position.set(
+    Math.cos(phase) * radius,
+    depth,
+    Math.sin(phase) * radius
+  );
+  scene.add(fish);
+  fishData.push({ mesh: fish, radius, depth, speed, phase, direction, wobble, wobbleSpd });
+}
+
+// ─── AERADOR — central vertical pipe ────────────────────────────
+const aerPipe = cyl(0.05, 0.05, 1.4, 10, MAT.pipeGray, 0, 0.7, 0);
+
+// aerator top cap
+const aerCap = cyl(0.1, 0.1, 0.06, 10, MAT.pipeGray, 0, 1.43, 0);
+
+// bubble ring at water surface — animated
+const bubbleRing = new THREE.Mesh(
+  new THREE.RingGeometry(0.12, 0.35, 32),
+  MAT.bubbles
+);
+bubbleRing.rotation.x = -Math.PI / 2;
+bubbleRing.position.set(0, waterH + 0.03, 0);
+scene.add(bubbleRing);
+
+// secondary outer bubble ring
+const bubbleRing2 = new THREE.Mesh(
+  new THREE.RingGeometry(0.38, 0.65, 32),
+  new THREE.MeshLambertMaterial({ color: 0xB3E5FC, transparent: true, opacity: 0.3 })
+);
+bubbleRing2.rotation.x = -Math.PI / 2;
+bubbleRing2.position.set(0, waterH + 0.032, 0);
+scene.add(bubbleRing2);
+
+// ─── FEED PIPE — diagonal from outside rim ──────────────────────
+// Pipe starts at (3.6, 1.3, 0) going to (2.2, 0.5, 0) — angled ~30°
+{
+  const start = new THREE.Vector3(3.6, 1.3, 0);
+  const end   = new THREE.Vector3(2.2, 0.45, 0);
+  const dir   = new THREE.Vector3().subVectors(end, start);
+  const len   = dir.length();
+  const mid   = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+
+  const pipeMesh = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, len, 8),
+    MAT.pipeDark
+  );
+  pipeMesh.position.copy(mid);
+  // align cylinder (default Y axis) to direction
+  const axis = new THREE.Vector3(0, 1, 0);
+  dir.normalize();
+  pipeMesh.quaternion.setFromUnitVectors(axis, dir);
+  pipeMesh.castShadow = true;
+  scene.add(pipeMesh);
+
+  // small funnel at top
+  const funnel = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.09, 0.03, 0.15, 8),
+    MAT.pipeDark
+  );
+  funnel.position.copy(start);
+  funnel.position.y += 0.07;
+  funnel.castShadow = true;
+  scene.add(funnel);
+}
+
+// ─── OVERFLOW DRAIN — stub on wall side ─────────────────────────
+{
+  // A short pipe stub protruding from the outer wall, positioned at angle=120°
+  const angle = (120 * Math.PI) / 180;
+  const drainR = 3.25;
+  const drainX = Math.cos(angle) * drainR;
+  const drainZ = Math.sin(angle) * drainR;
+
+  const drainPipe = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.06, 0.35, 8),
+    MAT.pipeDark
+  );
+  drainPipe.rotation.z = Math.PI / 2; // horizontal
+  drainPipe.position.set(drainX, wallH - 0.15, drainZ);
+  drainPipe.rotation.y = -angle; // face outward
+  // reapply correct orientation — radial direction
+  drainPipe.rotation.set(0, 0, 0);
+  // build correct quaternion: cylinder axis → radial direction
+  {
+    const radDir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).normalize();
+    const yAxis  = new THREE.Vector3(0, 1, 0);
+    drainPipe.quaternion.setFromUnitVectors(yAxis, radDir);
+    drainPipe.position.set(drainX, wallH - 0.15, drainZ);
+  }
+  drainPipe.castShadow = true;
+  scene.add(drainPipe);
+
+  // drain end cap / collar
+  const drainCap = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.08, 0.08, 0.04, 8),
+    MAT.pipeDark
+  );
+  const capDist = drainR + 0.19;
+  drainCap.position.set(Math.cos(angle) * capDist, wallH - 0.15, Math.sin(angle) * capDist);
+  {
+    const radDir = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)).normalize();
+    const yAxis  = new THREE.Vector3(0, 1, 0);
+    drainCap.quaternion.setFromUnitVectors(yAxis, radDir);
+  }
+  drainCap.castShadow = true;
+  scene.add(drainCap);
+}
+
+// ─── ACCESS PLATFORM / PLANK ─────────────────────────────────────
+// A plank box leaning from ground level to tank rim, on the +Z side
+{
+  const plankAngle = Math.atan2(wallH, 0.5); // lean angle
+  const plankLen   = Math.sqrt(0.5 * 0.5 + wallH * wallH) + 0.4;
+  const plank = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, 0.15, plankLen),
+    MAT.wood
+  );
+  // center the plank between ground at Z=3.7 and wall top at Z≈3.2
+  plank.position.set(0, wallH / 2, 3.2 + plankLen * Math.cos(plankAngle) / 2 - 0.1);
+  plank.rotation.x = -plankAngle * 0.6;
+  plank.castShadow = true;
+  scene.add(plank);
+
+  // side rails on plank
+  [-0.12, 0.12].forEach(ox => {
+    const rail = new THREE.Mesh(
+      new THREE.BoxGeometry(0.04, 0.06, plankLen),
+      MAT.woodDark
+    );
+    rail.position.set(ox, 0.1, 0);
+    plank.add(rail);
+  });
+}
+
+// ─── SHADE STRUCTURE — 4 posts + shade cloth ─────────────────────
+const postHeight = 2.8;
+const postPositions = [
+  [-3.8, -3.8],
+  [ 3.8, -3.8],
+  [-3.8,  3.8],
+  [ 3.8,  3.8],
+];
+postPositions.forEach(([px, pz]) => {
+  const post = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.07, postHeight, 6),
+    MAT.woodDark
+  );
+  post.position.set(px, postHeight / 2, pz);
+  post.castShadow = true;
+  scene.add(post);
+
+  // cross brace top cap
+  const cap = new THREE.Mesh(
+    new THREE.BoxGeometry(0.15, 0.1, 0.15),
+    MAT.woodDark
+  );
+  cap.position.set(px, postHeight, pz);
+  scene.add(cap);
+});
+
+// horizontal cross beams connecting posts at top
+[
+  [[-3.8,-3.8],[ 3.8,-3.8]],
+  [[-3.8, 3.8],[ 3.8, 3.8]],
+  [[-3.8,-3.8],[-3.8, 3.8]],
+  [[ 3.8,-3.8],[ 3.8, 3.8]],
+].forEach(([a, b]) => {
+  const ax = a[0], az = a[1], bx = b[0], bz = b[1];
+  const midX = (ax + bx) / 2, midZ = (az + bz) / 2;
+  const len  = Math.sqrt((bx - ax) ** 2 + (bz - az) ** 2);
+  const angle = Math.atan2(bz - az, bx - ax);
+  const beam  = new THREE.Mesh(
+    new THREE.BoxGeometry(len, 0.08, 0.08),
+    MAT.wood
+  );
+  beam.position.set(midX, postHeight, midZ);
+  beam.rotation.y = -angle;
+  beam.castShadow = true;
+  scene.add(beam);
+});
+
+// shade cloth (semi-transparent green plane)
+const shadeMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(7.8, 7.8),
+  MAT.shade
+);
+shadeMesh.rotation.x = -Math.PI / 2;
+shadeMesh.position.y = postHeight + 0.04;
+scene.add(shadeMesh);
+
+// ─── DECORATIVE TREES ────────────────────────────────────────────
+function makeTree(x, z, h) {
+  cyl(0.09, 0.12, h, 6, MAT.wood, x, h / 2, z);
+  cyl(0.85, 0.0, 1.4, 8, new THREE.MeshLambertMaterial({ color: 0x2E7D32 }), x, h + 0.5, z);
+  cyl(0.6, 0.0, 1.1, 8, new THREE.MeshLambertMaterial({ color: 0x388E3C }), x, h + 1.15, z);
+}
+makeTree(-6.5, -3, 3.2);
+makeTree( 7.0, -4.5, 2.8);
+makeTree(-7.0,  4.0, 3.4);
+makeTree( 6.5,  5.0, 3.0);
+
+// ─── CUT-VIEW GROUP (wall quadrant to hide for Corte view) ────────
+// We track which wall mesh to toggle for cross-section view
+// We create a separate "cut sector" inner wall that covers 270° to show section
+let cutMode = false;
+
+// Build a second set of wall segments for cut view
+// Hidden by default; shown in cut view to replace full walls
+const wallGroup = new THREE.Group();
+wallGroup.add(outerWall);
+wallGroup.add(innerWall);
+
+// For corte view: hide one quadrant (270° arc visible = hide Q1 near front)
+// We achieve this by swapping full-circle walls with 270° arc walls
+const outerWallCut = new THREE.Mesh(
+  // 270° arc = from 45° to 315° = from PI/4 to 7*PI/4
+  new THREE.CylinderGeometry(3.2, 3.2, wallH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  MAT.concrete
+);
+outerWallCut.position.y = wallY;
+outerWallCut.castShadow = true;
+outerWallCut.visible = false;
+scene.add(outerWallCut);
+
+const innerWallCut = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.95, 2.95, wallH + 0.02, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  MAT.concreteIn
+);
+innerWallCut.position.y = wallY;
+innerWallCut.castShadow = true;
+innerWallCut.visible = false;
+scene.add(innerWallCut);
+
+const waterCut = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.9, 2.9, waterH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  MAT.water
+);
+waterCut.position.y = waterH / 2 + 0.02;
+waterCut.visible = false;
+scene.add(waterCut);
+
+// cross-section cut face (flat ring showing wall thickness)
+const cutFaceGeo = new THREE.RingGeometry(2.95, 3.2, 2, 1);
+// Two cut faces at the two cut edges
+function makeCutFace(angle) {
+  const face = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.25, wallH),
+    MAT.concrete
+  );
+  const r = (2.95 + 3.2) / 2;
+  face.position.set(Math.cos(angle) * r, wallY, Math.sin(angle) * r);
+  face.rotation.y = -(angle + Math.PI / 2);
+  face.visible = false;
+  scene.add(face);
+  return face;
+}
+const cutFace1 = makeCutFace(Math.PI * 0.25);
+const cutFace2 = makeCutFace(Math.PI * 1.75);
+
+// water inner face for cut
+const waterFaceInner = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.9 * 2, waterH),
+  new THREE.MeshLambertMaterial({ color: 0x1565C0, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
+);
+waterFaceInner.position.set(0, waterH / 2, 0);
+waterFaceInner.rotation.y = Math.PI * 0.25 + Math.PI / 2;
+waterFaceInner.visible = false;
+scene.add(waterFaceInner);
+
+// ─── ORBIT CONTROLS (manual) ────────────────────────────────────
+let isDragging = false, prevX = 0, prevY = 0;
+let theta = 0.75, phi = 0.55, radius = 20;
+let autoRotate = false;
+let targetTheta = theta, targetPhi = phi, targetRadius = radius;
+
+function updateCamera() {
+  camera.position.x = radius * Math.sin(theta) * Math.cos(phi);
+  camera.position.y = radius * Math.sin(phi);
+  camera.position.z = radius * Math.cos(theta) * Math.cos(phi);
+  camera.lookAt(0, 0.6, 0);
+}
+updateCamera();
+
+const cvs = renderer.domElement;
+cvs.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; hint.style.opacity = 0; });
+cvs.addEventListener('touchstart', e => { isDragging = true; prevX = e.touches[0].clientX; prevY = e.touches[0].clientY; });
+window.addEventListener('mouseup',  () => isDragging = false);
+window.addEventListener('touchend', () => isDragging = false);
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const dx = e.clientX - prevX, dy = e.clientY - prevY;
+  targetTheta -= dx * 0.01;
+  targetPhi    = Math.max(0.08, Math.min(1.45, targetPhi + dy * 0.01));
+  prevX = e.clientX; prevY = e.clientY;
+});
+window.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const dx = e.touches[0].clientX - prevX, dy = e.touches[0].clientY - prevY;
+  targetTheta -= dx * 0.01;
+  targetPhi    = Math.max(0.08, Math.min(1.45, targetPhi + dy * 0.01));
+  prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
+});
+cvs.addEventListener('wheel', e => {
+  targetRadius = Math.max(6, Math.min(40, targetRadius + e.deltaY * 0.04));
+  e.preventDefault();
+}, { passive: false });
+
+// ─── VIEW PRESETS ────────────────────────────────────────────────
+function setView(v, btn) {
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  // exit cut mode first
+  if (cutMode && v !== 'corte') {
+    cutMode = false;
+    setCutMode(false);
+  }
+
+  if (v === 'iso')     { targetTheta = 0.75;         targetPhi = 0.55;  targetRadius = 20; }
+  if (v === 'topo')    { targetTheta = 0;             targetPhi = 1.45;  targetRadius = 18; }
+  if (v === 'frente')  { targetTheta = 0;             targetPhi = 0.28;  targetRadius = 18; }
+  if (v === 'lateral') { targetTheta = Math.PI / 2;  targetPhi = 0.28;  targetRadius = 18; }
+  if (v === 'corte') {
+    targetTheta = -Math.PI * 0.2;
+    targetPhi   = 0.45;
+    targetRadius = 16;
+    cutMode = true;
+    setCutMode(true);
+  }
+}
+
+function setCutMode(on) {
+  outerWall.visible    = !on;
+  innerWall.visible    = !on;
+  water.visible        = !on;
+  outerWallCut.visible = on;
+  innerWallCut.visible = on;
+  waterCut.visible     = on;
+  cutFace1.visible     = on;
+  cutFace2.visible     = on;
+  waterFaceInner.visible = on;
+}
+
+function toggleAuto(btn) {
+  autoRotate = !autoRotate;
+  if (btn) btn.classList.toggle('active', autoRotate);
+}
+
+// ─── ANIMATE ────────────────────────────────────────────────────
+let t = 0;
+
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.016;
+
+  if (autoRotate) targetTheta += 0.004;
+
+  // smooth camera
+  theta  += (targetTheta  - theta)  * 0.08;
+  phi    += (targetPhi    - phi)    * 0.08;
+  radius += (targetRadius - radius) * 0.08;
+  updateCamera();
+
+  // ── FISH ANIMATION ──
+  fishData.forEach((f, i) => {
+    const angle = f.phase + t * f.speed * f.direction;
+    const x = Math.cos(angle) * f.radius;
+    const z = Math.sin(angle) * f.radius;
+    const yBob = f.depth + Math.sin(t * f.wobbleSpd + i) * f.wobble;
+    f.mesh.position.set(x, yBob, z);
+
+    // face direction of travel (tangent to circle)
+    const tangentAngle = angle + (f.direction > 0 ? Math.PI / 2 : -Math.PI / 2);
+    f.mesh.rotation.y = -tangentAngle;
+
+    // gentle body roll
+    f.mesh.rotation.z = Math.sin(t * 1.2 + i * 0.6) * 0.12;
+
+    // tail wiggle — oscillate scale on Z
+    const wiggle = 1.0 + Math.sin(t * 6 + i) * 0.06;
+    f.mesh.children[0].scale.z = wiggle;
+  });
+
+  // ── AERATOR BUBBLE PULSE ──
+  const bubbleScale = 1.0 + Math.sin(t * 3.5) * 0.18;
+  bubbleRing.scale.set(bubbleScale, 1, bubbleScale);
+  bubbleRing.material.opacity = 0.35 + Math.sin(t * 3.5) * 0.2;
+
+  const bubbleScale2 = 1.0 + Math.sin(t * 2.8 + 1.0) * 0.12;
+  bubbleRing2.scale.set(bubbleScale2, 1, bubbleScale2);
+  bubbleRing2.material.opacity = 0.18 + Math.sin(t * 2.8 + 1.0) * 0.12;
+
+  // ── WATER SURFACE SHIMMER ──
+  const shScale = 1.0 + Math.sin(t * 1.9) * 0.004;
+  waterSurf.scale.set(shScale, 1, shScale);
+  waterSurf.material.opacity = 0.42 + Math.sin(t * 2.3 + 0.5) * 0.1;
+
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
