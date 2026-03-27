@@ -3,675 +3,473 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Composteira &amp; Minhocário 3D — Sisteminha Embrapa</title>
+<title>Composteira + Minhocário 3D</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --verde:   #2E7D32;
-    --verde2:  #4CAF50;
-    --marrom:  #5D4037;
-    --palha:   #FFF8E1;
-    --laranja: #FF7043;
-    --bg:      #1a1a0e;
-    --panel:   rgba(255,255,255,0.06);
-  }
-
-  body {
-    background: var(--bg);
-    color: #f0ede0;
-    font-family: 'Nunito', sans-serif;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    background: rgba(0,0,0,0.4);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    flex-shrink: 0;
-    z-index: 10;
-  }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .logo-icon { font-size: 24px; }
-  .logo-text { font-weight: 800; font-size: 15px; line-height: 1.2; }
-  .logo-sub  { font-size: 10px; color: var(--verde2); font-family: 'Space Mono', monospace; letter-spacing: 1px; }
-
-  .controls {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .btn {
-    background: var(--panel);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: #f0ede0;
-    padding: 5px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all .2s;
-    white-space: nowrap;
-  }
-  .btn:hover, .btn.active {
-    background: var(--verde);
-    border-color: var(--verde2);
-    color: #fff;
-  }
-
-  #canvas-container {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-  }
-
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #eee; font-family: Arial, sans-serif; overflow: hidden; }
+  #canvas-container { width: 100vw; height: 100vh; }
   canvas { display: block; }
 
-  .info-panel {
+  #info-panel {
     position: absolute;
-    bottom: 16px;
-    left: 16px;
-    background: rgba(0,0,0,0.65);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 11px;
-    line-height: 1.8;
-    backdrop-filter: blur(8px);
-    max-width: 210px;
-  }
-  .info-panel h4 {
-    font-size: 12px;
-    color: var(--verde2);
-    margin-bottom: 6px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: .5px;
-  }
-  .info-row { display: flex; justify-content: space-between; gap: 10px; }
-  .info-val { color: #FFD54F; font-weight: 700; }
-
-  .legend {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    background: rgba(0,0,0,0.65);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 11px;
-    backdrop-filter: blur(8px);
-    line-height: 2;
-  }
-  .legend h4 {
-    font-size: 11px;
-    color: var(--verde2);
-    margin-bottom: 4px;
-    font-family: 'Space Mono', monospace;
-  }
-  .leg-item { display: flex; align-items: center; gap: 7px; }
-  .leg-dot  { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
-
-  .drag-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: rgba(255,255,255,0.3);
+    top: 16px; left: 16px;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid #4CAF50;
+    border-radius: 8px;
+    padding: 14px 18px;
+    min-width: 220px;
     font-size: 13px;
-    pointer-events: none;
-    text-align: center;
-    transition: opacity 1s;
+    line-height: 1.8;
   }
+  #info-panel h2 { color: #4CAF50; font-size: 15px; margin-bottom: 8px; }
+  #info-panel .item { display: flex; justify-content: space-between; gap: 16px; }
+  #info-panel .label { color: #aaa; }
+  #info-panel .value { color: #fff; font-weight: bold; }
 
-  .badge {
+  #legend {
     position: absolute;
-    top: 16px;
-    left: 16px;
-    background: var(--verde);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-family: 'Space Mono', monospace;
-    letter-spacing: .5px;
+    bottom: 16px; left: 16px;
+    background: rgba(0,0,0,0.75);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+  }
+  #legend h3 { color: #ccc; margin-bottom: 8px; font-size: 13px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .legend-color { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+
+  #controls {
+    position: absolute;
+    top: 16px; right: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .btn {
+    background: rgba(0,0,0,0.7);
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    text-align: center;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .btn:hover { background: rgba(76,175,80,0.25); }
+  .btn.active { background: rgba(76,175,80,0.4); color: #fff; }
+
+  #hint {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    color: #666; font-size: 11px; text-align: right; line-height: 1.6;
   }
 </style>
 </head>
 <body>
+<div id="canvas-container"></div>
 
-<header>
-  <div class="logo">
-    <span class="logo-icon">♻️</span>
-    <div>
-      <div class="logo-text">Composteira &amp; Minhocário</div>
-      <div class="logo-sub">SISTEMINHA EMBRAPA · 3D</div>
-    </div>
-  </div>
-  <div class="controls">
-    <button class="btn active" onclick="setView('iso',this)">Isometrico</button>
-    <button class="btn" onclick="setView('topo',this)">Topo</button>
-    <button class="btn" onclick="setView('frente',this)">Frente</button>
-    <button class="btn" onclick="setView('lateralD',this)">Lateral D</button>
-    <button class="btn" onclick="setView('lateralE',this)">Lateral E</button>
-    <button class="btn" onclick="toggleAuto(this)">▶ Auto</button>
-  </div>
-</header>
-
-<div id="canvas-container">
-  <canvas id="c"></canvas>
-
-  <div class="badge">Compostagem · 4×4m cada</div>
-
-  <div class="drag-hint" id="hint">
-    🖱 Arraste para girar · Scroll para zoom
-  </div>
-
-  <div class="info-panel">
-    <h4>ESPECIFICACOES</h4>
-    <div class="info-row"><span>Composteira</span><span class="info-val">4×4m · 3 cam.</span></div>
-    <div class="info-row"><span>Minhocario</span><span class="info-val">4×4m · 4 band.</span></div>
-    <div class="info-row"><span>Minhocas</span><span class="info-val">~5.000 und.</span></div>
-    <div class="info-row"><span>Humus/mes</span><span class="info-val">~20 kg</span></div>
-    <div class="info-row"><span>Composto/mes</span><span class="info-val">~40 kg</span></div>
-  </div>
-
-  <div class="legend">
-    <h4>LEGENDA</h4>
-    <div class="leg-item"><div class="leg-dot" style="background:#A5D6A7"></div>Camara Fresco</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#A1887F"></div>Camara Maturando</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#4E342E"></div>Camara Pronto</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#5D4037"></div>Minhocario (bandejas)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#D7CCC8;border:1px solid #aaa"></div>Caminho central</div>
-  </div>
+<div id="info-panel">
+  <h2>Composteira + Minhocário</h2>
+  <div class="item"><span class="label">Leiras</span><span class="value">4 × (3m × 1m)</span></div>
+  <div class="item"><span class="label">Rotação</span><span class="value">15 dias/leira</span></div>
+  <div class="item"><span class="label">Cobertura</span><span class="value">Sombrite 50%</span></div>
+  <div class="item"><span class="label">Estrutura</span><span class="value">Madeira tratada</span></div>
+  <div class="item"><span class="label">Minhocário</span><span class="value">2 canteiros</span></div>
+  <div class="item"><span class="label">Dim. canteiro</span><span class="value">3m × 1,2m</span></div>
+  <div class="item"><span class="label">Elevação</span><span class="value">0,65m</span></div>
+  <div class="item"><span class="label">Húmus</span><span class="value">~20 kg/mês</span></div>
 </div>
+
+<div id="legend">
+  <h3>Estágio Compostagem</h3>
+  <div class="legend-item"><div class="legend-color" style="background:#8B4513"></div><span>Leira 1 – Resíduos frescos</span></div>
+  <div class="legend-item"><div class="legend-color" style="background:#A0522D"></div><span>Leira 2 – Ativa (7d)</span></div>
+  <div class="legend-item"><div class="legend-color" style="background:#6B8E23"></div><span>Leira 3 – Maturando (14d)</span></div>
+  <div class="legend-item"><div class="legend-color" style="background:#2E4A1E"></div><span>Leira 4 – Pronta (21d)</span></div>
+  <div class="legend-item"><div class="legend-color" style="background:#4a2c0a"></div><span>Minhocário – Húmus</span></div>
+</div>
+
+<div id="controls">
+  <div class="btn active" id="btn-iso" onclick="setView('iso')">Isométrico</div>
+  <div class="btn" id="btn-top" onclick="setView('top')">Topo</div>
+  <div class="btn" id="btn-front" onclick="setView('front')">Frente</div>
+  <div class="btn" id="btn-comp" onclick="setView('comp')">Composteira</div>
+  <div class="btn" id="btn-minh" onclick="setView('minh')">Minhocário</div>
+  <div class="btn" id="btn-auto" onclick="toggleAuto()">Auto ▶</div>
+</div>
+
+<div id="hint">Arraste para girar · Scroll para zoom · Clique direito para mover</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-// ─── SCENE SETUP ────────────────────────────────────────────────
+// ── Scene setup ──────────────────────────────────────────────────────────────
 const container = document.getElementById('canvas-container');
-const hint      = document.getElementById('hint');
+const W = container.clientWidth, H = container.clientHeight;
 
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(W, H);
+renderer.setPixelRatio(devicePixelRatio);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(0x1a1a0e);
+container.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.fog   = new THREE.Fog(0x1a1a0e, 35, 90);
+scene.background = new THREE.Color(0x1a2a1a);
+scene.fog = new THREE.Fog(0x1a2a1a, 25, 55);
 
-const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-camera.position.set(14, 10, 16);
-camera.lookAt(0, 1.5, 0);
+const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+camera.position.set(12, 10, 14);
+camera.lookAt(0, 0, 0);
 
-function resize() {
+// ── Lighting ─────────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+
+const sun = new THREE.DirectionalLight(0xfff5e0, 0.9);
+sun.position.set(10, 18, 10);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.near = 0.5;
+sun.shadow.camera.far = 60;
+sun.shadow.camera.left = -15;
+sun.shadow.camera.right = 15;
+sun.shadow.camera.top = 15;
+sun.shadow.camera.bottom = -15;
+scene.add(sun);
+
+scene.add(new THREE.DirectionalLight(0xaaddff, 0.25).position.set(-8, 6, -6));
+
+// ── Materials ────────────────────────────────────────────────────────────────
+const MAT = {
+  soil:    new THREE.MeshLambertMaterial({ color: 0x5a3010 }),
+  grass:   new THREE.MeshLambertMaterial({ color: 0x3a6b2a }),
+  wood:    new THREE.MeshLambertMaterial({ color: 0x7a5020 }),
+  darkWood:new THREE.MeshLambertMaterial({ color: 0x4a2e10 }),
+  metal:   new THREE.MeshLambertMaterial({ color: 0x888888 }),
+  sombrite:new THREE.MeshLambertMaterial({ color: 0x111111, transparent: true, opacity: 0.45, side: THREE.DoubleSide }),
+  post:    new THREE.MeshLambertMaterial({ color: 0x6b4515 }),
+  humus:   new THREE.MeshLambertMaterial({ color: 0x2a1a05 }),
+  worm:    new THREE.MeshLambertMaterial({ color: 0xcc6644 }),
+  path:    new THREE.MeshLambertMaterial({ color: 0x9b8060 }),
+  leira:   [
+    new THREE.MeshLambertMaterial({ color: 0x8B4513 }), // fresh
+    new THREE.MeshLambertMaterial({ color: 0xA0522D }), // active
+    new THREE.MeshLambertMaterial({ color: 0x6B8E23 }), // maturing
+    new THREE.MeshLambertMaterial({ color: 0x2E4A1E }), // ready
+  ],
+};
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function box(w, h, d, mat, x, y, z, castShadow = true) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, y, z);
+  if (castShadow) { m.castShadow = true; m.receiveShadow = true; }
+  scene.add(m);
+  return m;
+}
+
+function cyl(rt, rb, h, seg, mat, x, y, z) {
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
+  m.position.set(x, y, z);
+  m.castShadow = true;
+  scene.add(m);
+  return m;
+}
+
+// ── Ground ───────────────────────────────────────────────────────────────────
+box(24, 0.1, 16, MAT.grass, 0, -0.05, 0, false);
+
+// ── Center path between composteira and minhocário ───────────────────────────
+box(1.0, 0.06, 14, MAT.path, 0, 0.01, 0, false);
+
+// ── COMPOSTEIRA (left side, X < 0) ──────────────────────────────────────────
+// Layout: 4 leiras of 3m(Z) × 1m(X), side by side along X, gap 0.15m
+// Total width: 4*1 + 3*0.15 = 4.45m → centered at X = −2.725
+const LEIRAS_X = [-4.175, -3.025, -1.875, -0.725]; // centers of 4 leiras
+const LEIRA_W = 1.0;  // X extent
+const LEIRA_D = 3.0;  // Z extent
+const LEIRA_Z = 0;
+
+LEIRAS_X.forEach((lx, i) => {
+  // Soil mound
+  box(LEIRA_W - 0.06, 0.30 + i * 0.06, LEIRA_D - 0.06, MAT.leira[i], lx, 0.18, LEIRA_Z);
+
+  // Side boards (Z walls)
+  box(0.06, 0.35, LEIRA_D, MAT.wood, lx - LEIRA_W/2 + 0.03, 0.175, LEIRA_Z);
+  box(0.06, 0.35, LEIRA_D, MAT.wood, lx + LEIRA_W/2 - 0.03, 0.175, LEIRA_Z);
+
+  // Front/back boards (X walls) — shared per pair, drawn per leira outer edges only
+  if (i === 0) box(LEIRA_W, 0.35, 0.06, MAT.darkWood, lx, 0.175, LEIRA_Z - LEIRA_D/2 + 0.03);
+  if (i === 3) box(LEIRA_W, 0.35, 0.06, MAT.darkWood, lx, 0.175, LEIRA_Z + LEIRA_D/2 - 0.03);
+  // inner front/back shared boards (every leira gets them)
+  box(LEIRA_W, 0.35, 0.06, MAT.darkWood, lx, 0.175, LEIRA_Z - LEIRA_D/2 + 0.03);
+  box(LEIRA_W, 0.35, 0.06, MAT.darkWood, lx, 0.175, LEIRA_Z + LEIRA_D/2 - 0.03);
+});
+
+// Sombrite structure – composteira
+// 4 corner posts + 2 mid posts
+const COMP_X_MIN = -4.725, COMP_X_MAX = -0.225;
+const COMP_Z_MIN = -1.7,   COMP_Z_MAX = 1.7;
+const POST_H = 2.2;
+[[COMP_X_MIN, COMP_Z_MIN],[COMP_X_MIN, COMP_Z_MAX],
+ [COMP_X_MAX, COMP_Z_MIN],[COMP_X_MAX, COMP_Z_MAX],
+ [-2.475, COMP_Z_MIN],    [-2.475, COMP_Z_MAX]
+].forEach(([px, pz]) => {
+  box(0.08, POST_H, 0.08, MAT.post, px, POST_H/2, pz);
+});
+
+// Top beam rails
+box(Math.abs(COMP_X_MAX - COMP_X_MIN) + 0.08, 0.08, 0.08, MAT.post, (COMP_X_MIN+COMP_X_MAX)/2, POST_H + 0.04, COMP_Z_MIN);
+box(Math.abs(COMP_X_MAX - COMP_X_MIN) + 0.08, 0.08, 0.08, MAT.post, (COMP_X_MIN+COMP_X_MAX)/2, POST_H + 0.04, COMP_Z_MAX);
+box(0.08, 0.08, Math.abs(COMP_Z_MAX - COMP_Z_MIN) + 0.08, MAT.post, COMP_X_MIN, POST_H + 0.04, (COMP_Z_MIN+COMP_Z_MAX)/2);
+box(0.08, 0.08, Math.abs(COMP_Z_MAX - COMP_Z_MIN) + 0.08, MAT.post, COMP_X_MAX, POST_H + 0.04, (COMP_Z_MIN+COMP_Z_MAX)/2);
+box(0.08, 0.08, Math.abs(COMP_Z_MAX - COMP_Z_MIN) + 0.08, MAT.post, -2.475, POST_H + 0.04, (COMP_Z_MIN+COMP_Z_MAX)/2);
+
+// Sombrite roof
+const compW = Math.abs(COMP_X_MAX - COMP_X_MIN);
+const compD = Math.abs(COMP_Z_MAX - COMP_Z_MIN);
+box(compW, 0.02, compD, MAT.sombrite, (COMP_X_MIN+COMP_X_MAX)/2, POST_H + 0.08, (COMP_Z_MIN+COMP_Z_MAX)/2, false);
+
+// Sombrite side walls
+box(0.02, POST_H, compD, MAT.sombrite, COMP_X_MIN, POST_H/2, (COMP_Z_MIN+COMP_Z_MAX)/2, false);
+box(0.02, POST_H, compD, MAT.sombrite, COMP_X_MAX, POST_H/2, (COMP_Z_MIN+COMP_Z_MAX)/2, false);
+box(compW, POST_H, 0.02, MAT.sombrite, (COMP_X_MIN+COMP_X_MAX)/2, POST_H/2, COMP_Z_MIN, false);
+box(compW, POST_H, 0.02, MAT.sombrite, (COMP_X_MIN+COMP_X_MAX)/2, POST_H/2, COMP_Z_MAX, false);
+
+// ── MINHOCÁRIO (right side, X > 0) ──────────────────────────────────────────
+// 2 canteiros: 3m(Z) × 1.2m(X), elevated 0.65m, gap 0.3m
+// Centers at X = 1.1 and X = 2.6
+const MINH_BEDS = [
+  { x: 1.1,  label: 'Canteiro A' },
+  { x: 2.6,  label: 'Canteiro B' },
+];
+const BED_W = 1.2, BED_D = 3.0, BED_ELEV = 0.65, BED_H = 0.35;
+
+MINH_BEDS.forEach(({ x }) => {
+  const bz = 0;
+  const baseY = BED_ELEV + BED_H / 2;
+
+  // Metal legs (4 corners)
+  [[-0.5, -1.3],[0.5, -1.3],[-0.5, 1.3],[0.5, 1.3]].forEach(([dx, dz]) => {
+    box(0.06, BED_ELEV, 0.06, MAT.metal, x + dx, BED_ELEV/2, bz + dz);
+  });
+
+  // Wooden frame sides
+  box(BED_W, BED_H, 0.06, MAT.wood, x, baseY, bz - BED_D/2 + 0.03);
+  box(BED_W, BED_H, 0.06, MAT.wood, x, baseY, bz + BED_D/2 - 0.03);
+  box(0.06, BED_H, BED_D, MAT.wood, x - BED_W/2 + 0.03, baseY, bz);
+  box(0.06, BED_H, BED_D, MAT.wood, x + BED_W/2 - 0.03, baseY, bz);
+
+  // Bottom slats
+  for (let s = -1.2; s <= 1.2; s += 0.4) {
+    box(BED_W - 0.06, 0.04, 0.06, MAT.darkWood, x, BED_ELEV + 0.02, bz + s);
+  }
+
+  // Humus fill
+  box(BED_W - 0.12, BED_H - 0.08, BED_D - 0.12, MAT.humus, x, baseY + 0.04, bz);
+
+  // Worm blobs
+  for (let wi = 0; wi < 18; wi++) {
+    const wx = x + (Math.random() - 0.5) * (BED_W - 0.25);
+    const wz = bz + (Math.random() - 0.5) * (BED_D - 0.3);
+    cyl(0.015, 0.015, 0.12 + Math.random() * 0.08, 5, MAT.worm, wx, baseY + BED_H/2 - 0.01, wz);
+  }
+});
+
+// Minhocário sombrite structure
+const MINH_X_MIN = 0.45, MINH_X_MAX = 3.25;
+const MINH_Z_MIN = -1.7, MINH_Z_MAX = 1.7;
+
+[[MINH_X_MIN, MINH_Z_MIN],[MINH_X_MIN, MINH_Z_MAX],
+ [MINH_X_MAX, MINH_Z_MIN],[MINH_X_MAX, MINH_Z_MAX],
+ [1.875, MINH_Z_MIN],      [1.875, MINH_Z_MAX]
+].forEach(([px, pz]) => {
+  box(0.08, POST_H, 0.08, MAT.post, px, POST_H/2, pz);
+});
+
+const minhW = Math.abs(MINH_X_MAX - MINH_X_MIN);
+const minhD = Math.abs(MINH_Z_MAX - MINH_Z_MIN);
+
+// Top rails
+box(minhW + 0.08, 0.08, 0.08, MAT.post, (MINH_X_MIN+MINH_X_MAX)/2, POST_H + 0.04, MINH_Z_MIN);
+box(minhW + 0.08, 0.08, 0.08, MAT.post, (MINH_X_MIN+MINH_X_MAX)/2, POST_H + 0.04, MINH_Z_MAX);
+box(0.08, 0.08, minhD + 0.08, MAT.post, MINH_X_MIN, POST_H + 0.04, (MINH_Z_MIN+MINH_Z_MAX)/2);
+box(0.08, 0.08, minhD + 0.08, MAT.post, MINH_X_MAX, POST_H + 0.04, (MINH_Z_MIN+MINH_Z_MAX)/2);
+box(0.08, 0.08, minhD + 0.08, MAT.post, 1.875, POST_H + 0.04, (MINH_Z_MIN+MINH_Z_MAX)/2);
+
+// Sombrite roof + walls
+box(minhW, 0.02, minhD, MAT.sombrite, (MINH_X_MIN+MINH_X_MAX)/2, POST_H + 0.08, (MINH_Z_MIN+MINH_Z_MAX)/2, false);
+box(0.02, POST_H, minhD, MAT.sombrite, MINH_X_MIN, POST_H/2, (MINH_Z_MIN+MINH_Z_MAX)/2, false);
+box(0.02, POST_H, minhD, MAT.sombrite, MINH_X_MAX, POST_H/2, (MINH_Z_MIN+MINH_Z_MAX)/2, false);
+box(minhW, POST_H, 0.02, MAT.sombrite, (MINH_X_MIN+MINH_X_MAX)/2, POST_H/2, MINH_Z_MIN, false);
+box(minhW, POST_H, 0.02, MAT.sombrite, (MINH_X_MIN+MINH_X_MAX)/2, POST_H/2, MINH_Z_MAX, false);
+
+// ── Sprite labels ────────────────────────────────────────────────────────────
+function makeLabel(text, color = '#ffffff', bg = 'rgba(0,0,0,0.65)') {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256; canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = bg;
+  ctx.beginPath(); ctx.roundRect(4, 4, 248, 56, 10); ctx.fill();
+  ctx.fillStyle = color;
+  ctx.font = 'bold 22px Arial';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, 128, 32);
+  const tex = new THREE.CanvasTexture(canvas);
+  const mat = new THREE.SpriteMaterial({ map: tex, depthTest: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(2.0, 0.5, 1);
+  scene.add(sprite);
+  return sprite;
+}
+
+const LEIRA_LABELS = ['Leira 1\nFresco', 'Leira 2\n7d', 'Leira 3\n14d', 'Leira 4\nPronta'];
+const LEIRA_COLORS = ['#d4895a', '#c0a060', '#a0c050', '#60c070'];
+LEIRAS_X.forEach((lx, i) => {
+  const sp = makeLabel(LEIRA_LABELS[i], LEIRA_COLORS[i]);
+  sp.position.set(lx, 0.75, LEIRA_Z - LEIRA_D/2 - 0.5);
+});
+
+MINH_BEDS.forEach(({ x, label }) => {
+  const sp = makeLabel(label, '#88ddff');
+  sp.position.set(x, BED_ELEV + BED_H + 0.5, -MINH_Z_MAX - 0.5);
+});
+
+// Section labels
+const spComp = makeLabel('COMPOSTEIRA', '#ffcc44', 'rgba(80,50,0,0.75)');
+spComp.scale.set(2.8, 0.55, 1);
+spComp.position.set(-2.475, POST_H + 0.6, 0);
+
+const spMinh = makeLabel('MINHOCÁRIO', '#88ffaa', 'rgba(0,60,20,0.75)');
+spMinh.scale.set(2.8, 0.55, 1);
+spMinh.position.set(1.875, POST_H + 0.6, 0);
+
+// ── Orbit controls ────────────────────────────────────────────────────────────
+let isDragging = false, isPanning = false;
+let prevMouse = { x: 0, y: 0 };
+let spherical = { r: 22, phi: 0.9, theta: -0.6 };
+const target = new THREE.Vector3(0, 1, 0);
+
+function updateCamera() {
+  camera.position.set(
+    target.x + spherical.r * Math.sin(spherical.phi) * Math.sin(spherical.theta),
+    target.y + spherical.r * Math.cos(spherical.phi),
+    target.z + spherical.r * Math.sin(spherical.phi) * Math.cos(spherical.theta)
+  );
+  camera.lookAt(target);
+}
+updateCamera();
+
+const el = renderer.domElement;
+el.addEventListener('mousedown', e => {
+  if (e.button === 0) isDragging = true;
+  if (e.button === 2) isPanning = true;
+  prevMouse = { x: e.clientX, y: e.clientY };
+});
+el.addEventListener('mousemove', e => {
+  const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+  prevMouse = { x: e.clientX, y: e.clientY };
+  if (isDragging) {
+    spherical.theta -= dx * 0.008;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI * 0.48, spherical.phi + dy * 0.008));
+    updateCamera();
+  }
+  if (isPanning) {
+    const right = new THREE.Vector3();
+    const up = new THREE.Vector3(0, 1, 0);
+    right.crossVectors(camera.getWorldDirection(new THREE.Vector3()), up).normalize();
+    target.addScaledVector(right, -dx * 0.02);
+    target.y += dy * 0.02;
+    updateCamera();
+  }
+});
+el.addEventListener('mouseup', () => { isDragging = false; isPanning = false; });
+el.addEventListener('contextmenu', e => e.preventDefault());
+el.addEventListener('wheel', e => {
+  spherical.r = Math.max(3, Math.min(40, spherical.r + e.deltaY * 0.02));
+  updateCamera();
+});
+
+// Touch
+let lastTouches = [];
+el.addEventListener('touchstart', e => { lastTouches = Array.from(e.touches); }, { passive: true });
+el.addEventListener('touchmove', e => {
+  const touches = Array.from(e.touches);
+  if (touches.length === 1 && lastTouches.length === 1) {
+    const dx = touches[0].clientX - lastTouches[0].clientX;
+    const dy = touches[0].clientY - lastTouches[0].clientY;
+    spherical.theta -= dx * 0.01;
+    spherical.phi = Math.max(0.1, Math.min(Math.PI * 0.48, spherical.phi + dy * 0.01));
+    updateCamera();
+  } else if (touches.length === 2 && lastTouches.length === 2) {
+    const d0 = Math.hypot(lastTouches[0].clientX - lastTouches[1].clientX, lastTouches[0].clientY - lastTouches[1].clientY);
+    const d1 = Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY);
+    spherical.r = Math.max(3, Math.min(40, spherical.r * (d0 / d1)));
+    updateCamera();
+  }
+  lastTouches = touches;
+}, { passive: true });
+
+// ── View presets ──────────────────────────────────────────────────────────────
+const views = {
+  iso:   { r: 22, phi: 0.9,  theta: -0.6, tx: 0,  ty: 1, tz: 0 },
+  top:   { r: 22, phi: 0.05, theta: -0.5, tx: 0,  ty: 0, tz: 0 },
+  front: { r: 20, phi: 1.35, theta: 0,    tx: 0,  ty: 2, tz: 0 },
+  comp:  { r: 14, phi: 0.85, theta: -0.4, tx: -2.5, ty: 1, tz: 0 },
+  minh:  { r: 12, phi: 0.75, theta: -0.7, tx: 1.9,  ty: 1.5, tz: 0 },
+};
+
+let animTarget = null, animStart = null, animDuration = 800;
+function setView(key) {
+  const v = views[key];
+  animTarget = { ...v };
+  animStart = {
+    r: spherical.r, phi: spherical.phi, theta: spherical.theta,
+    tx: target.x, ty: target.y, tz: target.z,
+    t: performance.now()
+  };
+  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + key).classList.add('active');
+}
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+let autoRotate = false, autoAngle = 0;
+function toggleAuto() {
+  autoRotate = !autoRotate;
+  document.getElementById('btn-auto').textContent = autoRotate ? 'Auto ⏸' : 'Auto ▶';
+  document.getElementById('btn-auto').classList.toggle('active', autoRotate);
+}
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
   const w = container.clientWidth, h = container.clientHeight;
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
-}
-resize();
-window.addEventListener('resize', resize);
-
-// ─── LIGHTS ─────────────────────────────────────────────────────
-const ambient = new THREE.AmbientLight(0xfff8e1, 0.55);
-scene.add(ambient);
-
-const sun = new THREE.DirectionalLight(0xffd580, 1.4);
-sun.position.set(12, 20, 10);
-sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
-sun.shadow.camera.near   = 0.5;
-sun.shadow.camera.far    = 90;
-sun.shadow.camera.left   = -18;
-sun.shadow.camera.right  = 18;
-sun.shadow.camera.top    = 18;
-sun.shadow.camera.bottom = -18;
-scene.add(sun);
-
-const fill = new THREE.DirectionalLight(0xa8d8a8, 0.35);
-fill.position.set(-10, 8, -8);
-scene.add(fill);
-
-// ─── MATERIALS ──────────────────────────────────────────────────
-const MAT = {
-  ground:      new THREE.MeshLambertMaterial({ color: 0x7A6248 }),
-  gravel:      new THREE.MeshLambertMaterial({ color: 0xC8BCA8 }),
-  grass:       new THREE.MeshLambertMaterial({ color: 0x5C8A3A }),
-  wood:        new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
-  woodDark:    new THREE.MeshLambertMaterial({ color: 0x5D4037 }),
-  woodMed:     new THREE.MeshLambertMaterial({ color: 0x795548 }),
-  woodLight:   new THREE.MeshLambertMaterial({ color: 0xA1887F }),
-  slat:        new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
-  // compost chambers
-  fresco:      new THREE.MeshLambertMaterial({ color: 0x8BC34A }),
-  frescoTop:   new THREE.MeshLambertMaterial({ color: 0xAED581 }),
-  maturando:   new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
-  maturandoTop:new THREE.MeshLambertMaterial({ color: 0xA1887F }),
-  pronto:      new THREE.MeshLambertMaterial({ color: 0x3E2723 }),
-  prontoTop:   new THREE.MeshLambertMaterial({ color: 0x4E342E }),
-  // worm trays
-  tray1:       new THREE.MeshLambertMaterial({ color: 0x1B0000 }),
-  tray2:       new THREE.MeshLambertMaterial({ color: 0x3E2723 }),
-  tray3:       new THREE.MeshLambertMaterial({ color: 0x5D4037 }),
-  tray4:       new THREE.MeshLambertMaterial({ color: 0x6D4C41 }),
-  humus:       new THREE.MeshLambertMaterial({ color: 0x1A0A00 }),
-  worm:        new THREE.MeshLambertMaterial({ color: 0xC62828 }),
-  handle:      new THREE.MeshLambertMaterial({ color: 0xBCAAA4 }),
-  sign:        new THREE.MeshLambertMaterial({ color: 0xFFF8E1 }),
-  signPost:    new THREE.MeshLambertMaterial({ color: 0xA1887F }),
-  pitchfork:   new THREE.MeshLambertMaterial({ color: 0xAAAAAA }),
-  pitchforkH:  new THREE.MeshLambertMaterial({ color: 0x8D6E63 }),
-};
-
-// ─── HELPERS ─────────────────────────────────────────────────────
-function box(w, h, d, mat, x, y, z, rx=0, ry=0, rz=0) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-  m.position.set(x, y, z);
-  m.rotation.set(rx, ry, rz);
-  m.castShadow = true;
-  m.receiveShadow = true;
-  scene.add(m);
-  return m;
-}
-function cyl(rt, rb, h, seg, mat, x, y, z, rx=0, ry=0) {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat);
-  m.position.set(x, y, z);
-  m.rotation.x = rx;
-  m.rotation.y = ry;
-  m.castShadow = true;
-  scene.add(m);
-  return m;
-}
-
-// ─── GROUND ─────────────────────────────────────────────────────
-const groundGeo = new THREE.PlaneGeometry(36, 18);
-const ground = new THREE.Mesh(groundGeo, MAT.ground);
-ground.rotation.x = -Math.PI / 2;
-ground.receiveShadow = true;
-scene.add(ground);
-
-// Central gravel path (1m wide, between X -0.5 and 0.5)
-const gravel = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 6.0), MAT.gravel);
-gravel.rotation.x = -Math.PI / 2;
-gravel.position.set(0, 0.01, 0);
-gravel.receiveShadow = true;
-scene.add(gravel);
-
-// Grass tufts around perimeter
-const grassPositions = [
-  [-7,-3],[-7,0],[-7,3],[-6,-5],[-5,-6],[5,-6],[6,-5],[7,-3],[7,0],[7,3],[6,5],
-  [-5,6],[-3,6],[3,6],[-8,1],[8,-1],[-6,4],[6,-4],[-4,-7],[4,-7],[0,-7],[0,7],
-  [-9,0],[9,0],[-7,-6],[7,6],[-3,-7],[3,7],[5,7],[-5,-7],
-];
-grassPositions.forEach(([gx, gz]) => {
-  const w = 0.25 + Math.random() * 0.3;
-  const h = 0.18 + Math.random() * 0.2;
-  box(w, h, w, MAT.grass, gx + (Math.random()-0.5)*0.4, h*0.5, gz + (Math.random()-0.5)*0.4);
 });
 
-// ─── COMPOSTEIRA (left, center X=-2.5) ──────────────────────────
-// Footprint: X from -4.5 to -0.5, Z from -2 to +2 (4m × 4m)
-// Wall height: 1.4m, open top
-
-const CX = -2.5; // center X of composteira
-const CZ = 0.0;  // center Z
-
-// Corner posts (4 corners)
-const postH = 1.5;
-const postMat = MAT.woodDark;
-[[-4.45, -1.95], [-4.45, 1.95], [-0.55, -1.95], [-0.55, 1.95]].forEach(([px, pz]) => {
-  box(0.12, postH, 0.12, postMat, px, postH/2, pz);
-});
-
-// Horizontal wood slat walls — back (Z=-2), front (Z=+2), left (X=-4.5)
-// Each wall: stack of planks with small gaps
-const slatH    = 0.18;  // plank height
-const slatGap  = 0.04;  // gap between planks
-const slatThick = 0.08;
-const nSlats   = 6;     // number of plank rows
-
-// Back wall (Z = -2, full 4m width)
-for (let s = 0; s < nSlats; s++) {
-  const sy = 0.09 + s * (slatH + slatGap);
-  box(3.9, slatH, slatThick, MAT.wood, CX, sy, -1.96);
-}
-
-// Front wall (Z = +2, full 4m width)
-for (let s = 0; s < nSlats; s++) {
-  const sy = 0.09 + s * (slatH + slatGap);
-  box(3.9, slatH, slatThick, MAT.wood, CX, sy, 1.96);
-}
-
-// Left wall (X = -4.5, full 4m depth)
-for (let s = 0; s < nSlats; s++) {
-  const sy = 0.09 + s * (slatH + slatGap);
-  box(slatThick, slatH, 3.9, MAT.woodDark, -4.46, sy, CZ);
-}
-
-// Internal chamber dividers (2 dividers splitting 4m into 3 chambers ~1.33m each)
-// Divider 1: at X = -3.17 (approx)
-// Divider 2: at X = -1.83 (approx)
-const divX1 = -3.17;
-const divX2 = -1.83;
-for (let s = 0; s < nSlats; s++) {
-  const sy = 0.09 + s * (slatH + slatGap);
-  box(slatThick, slatH, 3.85, MAT.woodMed, divX1, sy, CZ);
-  box(slatThick, slatH, 3.85, MAT.woodMed, divX2, sy, CZ);
-}
-
-// Chamber centers
-const chamberCenters = [
-  { cx: (-4.5 + divX1) / 2, label: 'FRESCO'    }, // leftmost
-  { cx: (divX1 + divX2) / 2, label: 'MATURANDO' }, // middle
-  { cx: (divX2 + -0.5) / 2,  label: 'PRONTO'    }, // rightmost
-];
-
-// FRESCO chamber (light green, higher pile)
-{
-  const cx = chamberCenters[0].cx; // ~ -3.83
-  const chamW = Math.abs(divX1 - (-4.5)) - 0.1; // ~1.25
-  // fill base
-  box(chamW, 0.55, 3.7, MAT.fresco, cx, 0.275, CZ);
-  // mounded top (slightly irregular)
-  box(chamW - 0.05, 0.25, 3.6, MAT.frescoTop, cx, 0.67, CZ);
-  box(chamW - 0.25, 0.15, 3.2, MAT.frescoTop, cx + 0.05, 0.84, CZ);
-  // some fresh scraps on top (small lumps)
-  for (let i = 0; i < 5; i++) {
-    const lx = cx + (Math.random()-0.5)*0.9;
-    const lz = CZ + (Math.random()-0.5)*3.2;
-    box(0.09 + Math.random()*0.08, 0.06, 0.09 + Math.random()*0.08,
-      new THREE.MeshLambertMaterial({color: 0xC5E1A5}), lx, 0.96, lz);
-  }
-}
-
-// MATURANDO chamber (medium brown, medium height)
-{
-  const cx = chamberCenters[1].cx; // ~ -2.5
-  const chamW = Math.abs(divX2 - divX1) - 0.1;
-  box(chamW, 0.42, 3.7, MAT.maturando, cx, 0.21, CZ);
-  box(chamW - 0.05, 0.18, 3.6, MAT.maturandoTop, cx, 0.52, CZ);
-  box(chamW - 0.2, 0.10, 3.0, MAT.maturandoTop, cx, 0.67, CZ);
-}
-
-// PRONTO chamber (dark brown/black, lower, mounded)
-{
-  const cx = chamberCenters[2].cx; // ~ -1.17
-  const chamW = Math.abs(-0.5 - divX2) - 0.1;
-  box(chamW, 0.28, 3.7, MAT.pronto, cx, 0.14, CZ);
-  box(chamW - 0.1, 0.14, 3.5, MAT.prontoTop, cx, 0.35, CZ);
-  // Rich humus small lumps
-  for (let i = 0; i < 4; i++) {
-    const lx = cx + (Math.random()-0.5)*0.85;
-    const lz = CZ + (Math.random()-0.5)*3.0;
-    box(0.1, 0.07, 0.1,
-      new THREE.MeshLambertMaterial({color: 0x2E1503}), lx, 0.49, lz);
-  }
-}
-
-// Pitchfork leaning against left outer wall
-// Handle: thin cylinder, slightly tilted
-{
-  const pfx = -4.3;
-  const pfz = -1.2;
-  // handle (leaning: slightly angled)
-  const pfHandle = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.025, 0.025, 1.3, 6),
-    MAT.pitchforkH
-  );
-  pfHandle.position.set(pfx - 0.08, 0.65, pfz);
-  pfHandle.rotation.z = 0.18; // lean angle
-  pfHandle.rotation.y = 0.3;
-  pfHandle.castShadow = true;
-  scene.add(pfHandle);
-  // tines (3 thin prongs at top)
-  for (let ti = -1; ti <= 1; ti++) {
-    const tine = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.012, 0.012, 0.25, 4),
-      MAT.pitchfork
-    );
-    tine.position.set(pfx - 0.08 + ti * 0.055 - 0.14, 1.2, pfz + 0.1);
-    tine.rotation.x = 0.35;
-    tine.castShadow = true;
-    scene.add(tine);
-  }
-  // crossbar connecting tines
-  box(0.17, 0.025, 0.025, MAT.pitchfork, pfx - 0.08 - 0.14, 1.10, pfz + 0.06);
-}
-
-// Composteira nameplate
-{
-  const signZ = 2.2;
-  cyl(0.03, 0.03, 0.35, 6, MAT.signPost, -3.3, 0.175, signZ);
-  cyl(0.03, 0.03, 0.35, 6, MAT.signPost, -1.7, 0.175, signZ);
-  box(1.8, 0.22, 0.04, MAT.sign, CX, 0.35, signZ + 0.02);
-  // small colored bar to indicate "COMPOSTEIRA"
-  box(1.6, 0.06, 0.04, new THREE.MeshLambertMaterial({color:0x558B2F}), CX, 0.52, signZ + 0.02);
-}
-
-// ─── MINHOCÁRIO (right, center X=+2.5) ──────────────────────────
-// Footprint: X from 0.5 to 4.5, Z from -2 to +2 (4m × 4m)
-// 4 stacked trays, each 0.25m tall wall, 4m × 4m footprint
-
-const MX = 2.5;  // center X of minhocario
-const MZ = 0.0;
-
-const trayDefs = [
-  // bottom to top: [yBase, footXscale, footZscale, wallMat, fillMat, wallH]
-  { yBase: 0.0,  sx: 1.00, sz: 1.00, wMat: MAT.tray4,  fMat: MAT.tray3,  wallH: 0.30, fillH: 0.10, label: 'Coleta'    },
-  { yBase: 0.30, sx: 0.97, sz: 0.97, wMat: MAT.tray3,  fMat: MAT.tray2,  wallH: 0.25, fillH: 0.10, label: 'Maturacao' },
-  { yBase: 0.55, sx: 0.94, sz: 0.94, wMat: MAT.tray2,  fMat: MAT.tray1,  wallH: 0.25, fillH: 0.12, label: 'Ativo'     },
-  { yBase: 0.80, sx: 0.91, sz: 0.91, wMat: MAT.tray1,  fMat: MAT.humus,  wallH: 0.25, fillH: 0.15, label: 'Topo'      },
-];
-
-const trayW = 4.0; // base tray footprint
-const trayD = 4.0;
-
-trayDefs.forEach((t, idx) => {
-  const tw = trayW * t.sx;
-  const td = trayD * t.sz;
-  const tx = MX;
-  const tz = MZ;
-  const wb = 0.08; // wall board thickness
-
-  // Floor / bottom panel (wood slat texture via thin box)
-  box(tw - wb*2, 0.04, td - wb*2, MAT.woodMed, tx, t.yBase + 0.02, tz);
-  // Slat lines on bottom (visual)
-  for (let si = 0; si < 5; si++) {
-    const sx2 = tx - (tw/2 - wb) + (si + 0.5) * ((tw - wb*2) / 5);
-    box(0.03, 0.04, td - wb*2, MAT.woodDark, sx2, t.yBase + 0.04, tz);
-  }
-
-  // Four walls
-  // Front (Z+)
-  box(tw, t.wallH, wb, t.wMat, tx, t.yBase + t.wallH/2, tz + td/2 - wb/2);
-  // Back (Z-)
-  box(tw, t.wallH, wb, t.wMat, tx, t.yBase + t.wallH/2, tz - td/2 + wb/2);
-  // Left (X-)
-  box(wb, t.wallH, td, t.wMat, tx - tw/2 + wb/2, t.yBase + t.wallH/2, tz);
-  // Right (X+)
-  box(wb, t.wallH, td, t.wMat, tx + tw/2 - wb/2, t.yBase + t.wallH/2, tz);
-
-  // Corner reinforcement posts
-  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx3, sz3]) => {
-    box(0.1, t.wallH + 0.04, 0.1, MAT.woodDark,
-      tx + sx3 * (tw/2 - 0.04),
-      t.yBase + t.wallH/2,
-      tz + sz3 * (td/2 - 0.04));
-  });
-
-  // Fill / soil inside
-  const fillY = t.yBase + 0.04 + t.fillH/2;
-  box(tw - wb*2 - 0.04, t.fillH, td - wb*2 - 0.04, t.fMat, tx, fillY, tz);
-
-  // Side handles (small box protrusions on both long sides)
-  [-1, 1].forEach(side => {
-    box(0.12, 0.06, 0.22, MAT.handle,
-      tx + side * (tw/2 + 0.04),
-      t.yBase + t.wallH * 0.6,
-      tz - 0.5);
-    box(0.12, 0.06, 0.22, MAT.handle,
-      tx + side * (tw/2 + 0.04),
-      t.yBase + t.wallH * 0.6,
-      tz + 0.5);
-  });
-
-  // Aerator holes on front/back walls (small cylinders)
-  for (let ai = 0; ai < 5; ai++) {
-    const ax = tx - tw/2 + (ai + 0.8) * (tw / 5.5);
-    cyl(0.025, 0.025, wb + 0.02, 6, new THREE.MeshLambertMaterial({color:0x1a0a00}),
-      ax, t.yBase + t.wallH * 0.55, tz + td/2, Math.PI/2);
-  }
-});
-
-// Top tray extras: worm blobs and humus mound
-{
-  const topTray = trayDefs[3];
-  const topY = topTray.yBase + topTray.wallH + 0.04 + topTray.fillH;
-  const tw = trayW * topTray.sx;
-  const td = trayD * topTray.sz;
-
-  // Mounded humus surface on top tray
-  box(tw * 0.75, 0.08, td * 0.75, MAT.humus, MX, topY + 0.04, MZ);
-  box(tw * 0.45, 0.06, td * 0.45, MAT.humus, MX + 0.1, topY + 0.09, MZ - 0.1);
-
-  // Red worm blobs (small red squiggles = elongated capsules)
-  const wormPositions = [
-    [MX - 0.8, topY + 0.12, MZ - 0.6],
-    [MX - 0.3, topY + 0.13, MZ + 0.7],
-    [MX + 0.5, topY + 0.12, MZ - 0.3],
-    [MX + 0.9, topY + 0.13, MZ + 0.5],
-    [MX - 0.6, topY + 0.12, MZ + 0.1],
-    [MX + 0.2, topY + 0.13, MZ - 0.8],
-    [MX - 1.0, topY + 0.12, MZ + 0.8],
-    [MX + 0.7, topY + 0.12, MZ + 0.2],
-  ];
-  wormPositions.forEach(([wx, wy, wz], i) => {
-    const wormMesh = new THREE.Mesh(
-      new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.025, 0.12, 4, 6) :
-        new THREE.CylinderGeometry(0.025, 0.025, 0.14, 6),
-      MAT.worm
-    );
-    wormMesh.position.set(wx, wy, wz);
-    wormMesh.rotation.set(0, i * 0.7, Math.PI/2 + i * 0.4);
-    wormMesh.castShadow = true;
-    scene.add(wormMesh);
-  });
-}
-
-// Minhocario nameplate
-{
-  const signZ = 2.2;
-  cyl(0.03, 0.03, 0.35, 6, MAT.signPost, MX - 0.8, 0.175, signZ);
-  cyl(0.03, 0.03, 0.35, 6, MAT.signPost, MX + 0.8, 0.175, signZ);
-  box(1.8, 0.22, 0.04, MAT.sign, MX, 0.35, signZ + 0.02);
-  box(1.6, 0.06, 0.04, new THREE.MeshLambertMaterial({color:0x4E342E}), MX, 0.52, signZ + 0.02);
-}
-
-// ─── TREES for ambiance ──────────────────────────────────────────
-function makeTree(x, z, h) {
-  cyl(0.09, 0.13, h, 6, MAT.woodDark, x, h/2, z);
-  cyl(0.95, 0.0, 1.6, 8, new THREE.MeshLambertMaterial({color:0x2E7D32}), x, h + 0.55, z);
-  cyl(0.70, 0.0, 1.3, 8, new THREE.MeshLambertMaterial({color:0x388E3C}), x, h + 1.3, z);
-  cyl(0.45, 0.0, 1.0, 8, new THREE.MeshLambertMaterial({color:0x43A047}), x, h + 1.9, z);
-}
-makeTree(-7.0, -4.5, 3.2);
-makeTree( 7.0, -4.5, 2.8);
-makeTree(-6.5,  4.0, 3.5);
-makeTree( 6.5,  4.5, 3.0);
-makeTree( 0.0, -6.0, 2.6);
-
-// ─── ORBIT CONTROLS (manual, smooth lerp) ────────────────────────
-let isDragging = false, prevX = 0, prevY = 0;
-let theta  = 0.75, phi = 0.58, radius = 20;
-let targetTheta = theta, targetPhi = phi, targetRadius = radius;
-let autoRotate = false;
-
-function updateCamera() {
-  camera.position.x = radius * Math.sin(theta) * Math.cos(phi);
-  camera.position.y = radius * Math.sin(phi);
-  camera.position.z = radius * Math.cos(theta) * Math.cos(phi);
-  camera.lookAt(0, 1.2, 0);
-}
-updateCamera();
-
-const cvs = renderer.domElement;
-cvs.addEventListener('mousedown', e => {
-  isDragging = true; prevX = e.clientX; prevY = e.clientY;
-  hint.style.opacity = 0;
-});
-cvs.addEventListener('touchstart', e => {
-  isDragging = true;
-  prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
-});
-window.addEventListener('mouseup',  () => isDragging = false);
-window.addEventListener('touchend', () => isDragging = false);
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const dx = e.clientX - prevX, dy = e.clientY - prevY;
-  targetTheta -= dx * 0.01;
-  targetPhi    = Math.max(0.08, Math.min(1.45, targetPhi + dy * 0.01));
-  prevX = e.clientX; prevY = e.clientY;
-});
-window.addEventListener('touchmove', e => {
-  if (!isDragging) return;
-  const dx = e.touches[0].clientX - prevX, dy = e.touches[0].clientY - prevY;
-  targetTheta -= dx * 0.01;
-  targetPhi    = Math.max(0.08, Math.min(1.45, targetPhi + dy * 0.01));
-  prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
-});
-cvs.addEventListener('wheel', e => {
-  targetRadius = Math.max(7, Math.min(40, targetRadius + e.deltaY * 0.03));
-  e.preventDefault();
-}, { passive: false });
-
-// ─── VIEW PRESETS ─────────────────────────────────────────────────
-function setView(v, btn) {
-  document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  autoRotate = false;
-  if (v === 'iso')     { targetTheta =  0.75;         targetPhi = 0.58;  targetRadius = 20; }
-  if (v === 'topo')    { targetTheta =  0.0;           targetPhi = 1.45;  targetRadius = 20; }
-  if (v === 'frente')  { targetTheta =  0.0;           targetPhi = 0.28;  targetRadius = 18; }
-  if (v === 'lateralD'){ targetTheta =  Math.PI / 2;  targetPhi = 0.30;  targetRadius = 18; }
-  if (v === 'lateralE'){ targetTheta = -Math.PI / 2;  targetPhi = 0.30;  targetRadius = 18; }
-}
-
-function toggleAuto(btn) {
-  autoRotate = !autoRotate;
-  btn.classList.toggle('active', autoRotate);
-}
-
-// ─── ANIMATE ────────────────────────────────────────────────────
-let t = 0;
+// ── Animate ───────────────────────────────────────────────────────────────────
 function animate() {
   requestAnimationFrame(animate);
-  t += 0.016;
 
-  if (autoRotate) targetTheta += 0.005;
-
-  // smooth camera lerp
-  theta  += (targetTheta  - theta)  * 0.08;
-  phi    += (targetPhi    - phi)    * 0.08;
-  radius += (targetRadius - radius) * 0.08;
-  updateCamera();
+  if (animTarget && animStart) {
+    const elapsed = performance.now() - animStart.t;
+    const t = easeInOut(Math.min(elapsed / animDuration, 1));
+    spherical.r     = lerp(animStart.r,   animTarget.r,   t);
+    spherical.phi   = lerp(animStart.phi, animTarget.phi, t);
+    spherical.theta = lerp(animStart.theta, animTarget.theta, t);
+    target.set(lerp(animStart.tx, animTarget.tx, t),
+               lerp(animStart.ty, animTarget.ty, t),
+               lerp(animStart.tz, animTarget.tz, t));
+    updateCamera();
+    if (t >= 1) animTarget = null;
+  } else if (autoRotate && !isDragging) {
+    autoAngle += 0.003;
+    spherical.theta = autoAngle;
+    updateCamera();
+  }
 
   renderer.render(scene, camera);
 }
