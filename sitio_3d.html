@@ -143,8 +143,8 @@
     <h4>SISTEMINHA EMBRAPA</h4>
     <div class="info-row"><span>Área total</span><span class="info-val">400m²</span></div>
     <div class="info-row"><span>A1 — Tilápia</span><span class="info-val">~100m²</span></div>
-    <div class="info-row"><span>A2 — Horta</span><span class="info-val">~100m²</span></div>
-    <div class="info-row"><span>B1 — Compost</span><span class="info-val">32m²</span></div>
+    <div class="info-row"><span>A2 — Compost</span><span class="info-val">32m²</span></div>
+    <div class="info-row"><span>B1 — Horta</span><span class="info-val">~100m²</span></div>
     <div class="info-row"><span>B2 — Galinheiro</span><span class="info-val">48m²</span></div>
     <div class="info-row"><span>Canteiros</span><span class="info-val">4 × 7m²</span></div>
     <div class="info-row"><span>Galinhas</span><span class="info-val">~20 aves</span></div>
@@ -153,8 +153,8 @@
   <div class="legend">
     <h4>LEGENDA</h4>
     <div class="leg-item"><div class="leg-dot" style="background:#42A5F5"></div>A1 — Tanque Tilápias</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#66BB6A"></div>A2 — Horta (4 canteiros)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#8D6E63"></div>B1 — Composteira + Minhocário</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#8D6E63"></div>A2 — Composteira + Minhocário</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#66BB6A"></div>B1 — Horta (4 canteiros)</div>
     <div class="leg-item"><div class="leg-dot" style="background:#E8A040"></div>B2 — Galinheiro 8×6m</div>
     <div class="leg-item"><div class="leg-dot" style="background:#A1887F;opacity:.5"></div>Caminhos (1m)</div>
   </div>
@@ -209,8 +209,8 @@ scene.add(fill);
 const M = {
   ground:    new THREE.MeshLambertMaterial({ color: 0x7A6248 }),
   zoneA1:    new THREE.MeshLambertMaterial({ color: 0x1565C0, transparent: true, opacity: .18 }),
-  zoneA2:    new THREE.MeshLambertMaterial({ color: 0x2E7D32, transparent: true, opacity: .20 }),
-  zoneB1:    new THREE.MeshLambertMaterial({ color: 0x5D4037, transparent: true, opacity: .20 }),
+  zoneA2:    new THREE.MeshLambertMaterial({ color: 0x5D4037, transparent: true, opacity: .20 }),
+  zoneB1:    new THREE.MeshLambertMaterial({ color: 0x2E7D32, transparent: true, opacity: .20 }),
   zoneB2:    new THREE.MeshLambertMaterial({ color: 0xBF6C1A, transparent: true, opacity: .16 }),
   path:      new THREE.MeshLambertMaterial({ color: 0xC4A882 }),
   fence:     new THREE.MeshLambertMaterial({ color: 0xA0887A }),
@@ -364,12 +364,12 @@ const lblA1 = makeLabel('A1 — TANQUE TILÁPIAS', 'Ø 6m aprox. · irrigação 
 lblA1.position.set(-5, 2.2, -5);
 
 // ═══════════════════════════════════════════════════════════════
-// A2 — HORTA 4 CANTEIROS  (center: 5, 0, -5)
+// B1 — HORTA 4 CANTEIROS  (center: -5, 0, 5)
 // Canteiros 5m × 1.4m, espaçamento 0.6m, orientados no eixo X
 // ═══════════════════════════════════════════════════════════════
-const canteirosZ = [-8.0, -6.0, -4.0, -2.0];  // centros em Z (espaço 2m por canteiro)
+const canteirosZ = [2.0, 4.0, 6.0, 8.0];  // centros em Z (espaço 2m por canteiro)
 canteirosZ.forEach((cz, i) => {
-  const cx = 5;   // center X
+  const cx = -5;   // center X
   // raised bed sides (wood)
   box(5.1, 0.32, 0.1, M.bedSide, cx, 0.16, cz - 0.7);  // front
   box(5.1, 0.32, 0.1, M.bedSide, cx, 0.16, cz + 0.7);  // back
@@ -389,17 +389,17 @@ canteirosZ.forEach((cz, i) => {
   }
   // canteiro label (small)
   const lv = makeLabel(`Canteiro ${i+1}`, '5m × 1,4m · 7m²', '#cccccc', '#A5D6A7');
-  lv.position.set(cx + 3.2, 0.55, cz);
+  lv.position.set(cx - 3.2, 0.55, cz);
   lv.scale.set(2.5, 0.6, 1);
 });
 
 // Label A2
-const lblA2 = makeLabel('A2 — HORTA', '4 canteiros · 5×1,4m · 28m² cultivados', '#ffffff', '#66BB6A');
-lblA2.position.set(5, 2.2, -5);
+const lblA2 = makeLabel('B1 — HORTA', '4 canteiros · 5×1,4m · 28m² cultivados', '#ffffff', '#66BB6A');
+lblA2.position.set(-5, 2.2, 5);
 
 // ═══════════════════════════════════════════════════════════════
-// B1 — COMPOSTEIRA (4×4m) + MINHOCÁRIO (4×4m)
-// center B1: (-5, 0, 5); Composteira at (-7, 0, 5), Minhocário at (-3, 0, 5)
+// A2 — COMPOSTEIRA (4×4m) + MINHOCÁRIO (4×4m)
+// center A2: (5, 0, -5); Composteira at (3, 0, -5), Minhocário at (7, 0, -5)
 // ═══════════════════════════════════════════════════════════════
 
 // ── COMPOSTEIRA (-7, 0, 5) ──
@@ -425,7 +425,7 @@ function makeComposteira(cx, cz) {
     cyl(0.08, 0.04, 0.18, 5, new THREE.MeshLambertMaterial({color:0x795548}), cx+ox, 1.2+Math.abs(ox)*0.1, cz+oz);
   });
 }
-makeComposteira(-7, 5);
+makeComposteira(3, -5);
 
 // ── MINHOCÁRIO (-3, 0, 5) ──
 function makeMinhocario(cx, cz) {
@@ -455,11 +455,11 @@ function makeMinhocario(cx, cz) {
     cyl(0.04, 0.04, 0.22, 4, M.worm, wx, 1.15, wz, Math.PI/2);
   }
 }
-makeMinhocario(-3, 5);
+makeMinhocario(7, -5);
 
 // Label B1
-const lblB1 = makeLabel('B1 — COMPOSTEIRA + MINHOCÁRIO', '4×4m cada · ciclagem de nutrientes', '#ffffff', '#BCAAA4');
-lblB1.position.set(-5, 2.6, 5);
+const lblB1 = makeLabel('A2 — COMPOSTEIRA + MINHOCÁRIO', '4×4m cada · ciclagem de nutrientes', '#ffffff', '#BCAAA4');
+lblB1.position.set(5, 2.6, -5);
 
 // ═══════════════════════════════════════════════════════════════
 // B2 — GALINHEIRO 8×6m  (center: 5, 0, 5)
