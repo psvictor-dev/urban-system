@@ -176,7 +176,7 @@
 <div id="canvas-container">
   <canvas id="c"></canvas>
 
-  <div class="badge">4 Canteiros &middot; 5&times;1,4m &middot; 28m&sup2;</div>
+  <div class="badge">4 Canteiros + Sementeira &middot; 28m&sup2; + 1,4m&sup2;</div>
 
   <div class="drag-hint" id="hint">
     🖱 Arraste para girar &middot; Scroll para zoom
@@ -184,8 +184,8 @@
 
   <div class="info-panel">
     <h4>ESPECIFICACOES</h4>
-    <div class="info-row"><span>Canteiros</span><span class="info-val">4</span></div>
-    <div class="info-row"><span>Area cultivada</span><span class="info-val">28m&sup2;</span></div>
+    <div class="info-row"><span>Canteiros</span><span class="info-val">4 + sementeira</span></div>
+    <div class="info-row"><span>Area cultivada</span><span class="info-val">29,4m&sup2;</span></div>
     <div class="info-row"><span>Espacamento</span><span class="info-val">0.8m</span></div>
     <div class="info-row"><span>Orientacao</span><span class="info-val">L-O</span></div>
     <div class="info-row"><span>Ciclo</span><span class="info-val">~35-90 dias</span></div>
@@ -198,6 +198,7 @@
     <div class="leg-item"><div class="leg-dot" style="background:#E53935"></div>Cant. 3 — tomate/solanac.</div>
     <div class="leg-item"><div class="leg-dot" style="background:#AED581"></div>Cant. 4 — ervas</div>
     <div class="leg-item"><div class="leg-dot" style="background:#64B5F6"></div>Irrigacao por gotejo</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#FFF176"></div>Sementeira 1,4×1m</div>
   </div>
 </div>
 
@@ -414,6 +415,76 @@ BED_Z.forEach(bz => {
   // Slightly mounded center (very subtle ridge)
   box(soilW * 0.6, 0.04, soilD * 0.7, MAT.soil, 0, BED_H - 0.04, bz);
 });
+
+// ─── SEMENTEIRA (1.4m × 1.0m) à esquerda dos canteiros ──────────
+const SEMI_W = 1.4, SEMI_D = 1.0;
+const SEMI_X = -BED_W / 2 - 0.6 - SEMI_W / 2;  // ~-3.8
+const SEMI_Z = 0;
+const semMat   = new THREE.MeshLambertMaterial({ color: 0xA1887F });
+const semSoil  = new THREE.MeshLambertMaterial({ color: 0x2C1A0E });
+const semFill  = new THREE.MeshLambertMaterial({ color: 0xFFF176, transparent: true, opacity: 0.7 });
+
+// Wood frame
+const sh = BED_H / 2;
+box(SEMI_W, BED_H, PLANK_T, semMat, SEMI_X, sh, SEMI_Z - SEMI_D / 2);
+box(SEMI_W, BED_H, PLANK_T, semMat, SEMI_X, sh, SEMI_Z + SEMI_D / 2);
+box(PLANK_T, BED_H, SEMI_D - PLANK_T * 2, semMat, SEMI_X - SEMI_W / 2 + PLANK_T / 2, sh, SEMI_Z);
+box(PLANK_T, BED_H, SEMI_D - PLANK_T * 2, semMat, SEMI_X + SEMI_W / 2 - PLANK_T / 2, sh, SEMI_Z);
+// Corner posts
+[[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([sx,sz]) => {
+  cyl(0.04, 0.04, BED_H + 0.08, 6, semMat,
+    SEMI_X + sx * (SEMI_W / 2 - PLANK_T / 2), sh + 0.04,
+    SEMI_Z + sz * (SEMI_D / 2 - PLANK_T / 2));
+});
+// Soil
+box(SEMI_W - PLANK_T * 2, 0.02, SEMI_D - PLANK_T * 2, semSoil, SEMI_X, BED_H - 0.06, SEMI_Z);
+// Grid dividers (bandeja de mudas visual)
+for(let gx = -0.4; gx <= 0.4; gx += 0.28) {
+  box(0.02, 0.06, SEMI_D - PLANK_T * 2, semFill, SEMI_X + gx, BED_H, SEMI_Z);
+}
+for(let gz = -0.3; gz <= 0.3; gz += 0.3) {
+  box(SEMI_W - PLANK_T * 2, 0.06, 0.02, semFill, SEMI_X, BED_H, SEMI_Z + gz);
+}
+// Seedlings (tiny sprouts)
+const sproutMat = new THREE.MeshLambertMaterial({ color: 0x8BC34A });
+for(let sc = 0; sc < 5; sc++) {
+  for(let sr = 0; sr < 3; sr++) {
+    const spx = SEMI_X - 0.48 + sc * 0.24 + (Math.random() - 0.5) * 0.04;
+    const spz = SEMI_Z - 0.28 + sr * 0.28 + (Math.random() - 0.5) * 0.04;
+    cyl(0.015, 0.01, 0.08, 4, sproutMat, spx, BED_H + 0.04, spz);
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.07, 5), sproutMat);
+    leaf.position.set(spx, BED_H + 0.09, spz);
+    scene.add(leaf);
+  }
+}
+// Connecting gravel path from sementeira to main beds
+box(0.55, 0.01, SEMI_D, MAT.path,
+  SEMI_X + SEMI_W / 2 + 0.27, 0.005, SEMI_Z);
+
+// Label sprite for sementeira
+(function() {
+  const W = 256, H = 56;
+  const cv2 = document.createElement('canvas');
+  cv2.width = W; cv2.height = H;
+  const ctx = cv2.getContext('2d');
+  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(0,0,W,H,8); else ctx.rect(0,0,W,H);
+  ctx.fill();
+  ctx.font = 'bold 22px Nunito,sans-serif';
+  ctx.fillStyle = '#FFF176';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Sementeira', W/2, H * 0.38);
+  ctx.font = '15px Nunito,sans-serif';
+  ctx.fillStyle = '#cccccc';
+  ctx.fillText('1,4m × 1m', W/2, H * 0.73);
+  const tex = new THREE.CanvasTexture(cv2);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.scale.set(2.8, 0.62, 1);
+  sp.position.set(SEMI_X, BED_H + 0.8, SEMI_Z);
+  scene.add(sp);
+})();
 
 // ─── PLANTS — BED 1 (folhosas: couve/alface) ─────────────────────
 // Dense leafy greens: cones + cylinders, bright green
