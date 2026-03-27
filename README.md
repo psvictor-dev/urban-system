@@ -1,13 +1,21 @@
 # 🌱 Sisteminha Embrapa — Semiárido Pernambucano
 
-> Ferramenta de planejamento agrícola para agricultura familiar no semiárido de Pernambuco.  
-> Calendário de plantio escalonado, banco de sementes pessoal e visualização 3D do galinheiro.
+> Ferramenta de planejamento agrícola para agricultura familiar no semiárido de Pernambuco.
+> Calendário de plantio escalonado, banco de sementes pessoal e visualizações 3D interativas de todos os módulos do sisteminha.
+
+---
+
+## 🎬 Preview em Vídeo
+
+[![Preview do Sítio](https://img.youtube.com/vi/VIDEO_ID_AQUI/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_AQUI)
+
+> **Como atualizar:** Suba o `docs/preview_sitio_2x.mov` no YouTube como **Não listado** e substitua `VIDEO_ID_AQUI` nas duas URLs acima pelo ID gerado (ex: `dQw4w9WgXcQ`).
 
 ---
 
 ## 🖥 Demo
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/SEU_USUARIO/sisteminha-embrapa)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/psvictor-dev/urban-system)
 
 ---
 
@@ -16,9 +24,14 @@
 | Arquivo | Descrição |
 |--------|-----------|
 | `index.html` | App principal — Calendário, Canteiros e Banco de Sementes |
+| `sitio_3d.html` | Visualização 3D do sítio completo com todos os módulos |
 | `galinheiro_3d.html` | Visualização 3D interativa do galinheiro low cost |
+| `horta_3d.html` | Visualização 3D da horta — 4 canteiros + sementeira |
+| `tanque_tilapias_3d.html` | Visualização 3D do tanque de tilápias |
+| `composteira_minhocario_3d.html` | Visualização 3D da composteira e minhocário |
+| `planejamento_canteiros_maio2027.html` | Planejamento detalhado dos canteiros |
 | `docs/PlanoSisteminhaEmbrapa_6meses.pdf` | Plano de implantação mês a mês (PDF) |
-| `docs/Galinheiro_LowCost_Embrapa.pdf` | Estrutura e montagem do galinheiro (PDF com plantas e diagramas) |
+| `docs/Galinheiro_LowCost_Embrapa.pdf` | Estrutura e montagem do galinheiro (PDF) |
 | `README.md` | Este arquivo |
 
 ---
