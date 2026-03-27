@@ -196,6 +196,83 @@ td.cultura-nome .tag {
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; line-height: 1.6; }
 
+/* ── PRÓXIMAS AÇÕES ── */
+.resumo-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.resumo-stat { background: var(--bg3); border: 1px solid var(--borda); border-radius: 12px; padding: 14px 18px; flex: 1; min-width: 110px; text-align: center; }
+.resumo-val { font-size: 30px; font-weight: 900; font-family: 'Fraunces', serif; }
+.resumo-val.red    { color: #f44336; }
+.resumo-val.yellow { color: var(--ouro); }
+.resumo-val.green  { color: var(--verde2); }
+.resumo-lab { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--terra2); margin-top: 3px; }
+
+.acao-secao { margin-bottom: 28px; }
+.acao-secao-titulo {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--borda); margin-bottom: 12px;
+}
+.acao-secao-titulo.urgente { color: #f44336; }
+.acao-secao-titulo.aviso   { color: var(--ouro); }
+.acao-secao-titulo.plantar { color: var(--verde2); }
+.acao-secao-titulo.baixo   { color: var(--terra2); }
+
+.acoes-lista { display: flex; flex-direction: column; gap: 8px; }
+.acao-item {
+  background: var(--bg3); border-radius: 10px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  border-left: 3px solid transparent;
+}
+.acao-item.urgente { border-color: #f44336; }
+.acao-item.aviso   { border-color: var(--ouro); }
+.acao-item.plantar { border-color: var(--verde); }
+.acao-item.baixo   { border-color: var(--terra); }
+.acao-emoji-lg { font-size: 26px; flex-shrink: 0; }
+.acao-corpo { flex: 1; min-width: 0; }
+.acao-nome { font-weight: 600; font-size: 13px; color: var(--texto); }
+.acao-var  { font-size: 11px; color: var(--terra2); }
+.acao-detalhe { font-size: 11px; color: var(--sub); margin-top: 3px; }
+.acao-tag {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 99px; flex-shrink: 0; white-space: nowrap;
+}
+.acao-tag.urgente { background: rgba(244,67,54,0.18); color: #ef9a9a; border: 1px solid rgba(244,67,54,0.35); }
+.acao-tag.aviso   { background: rgba(249,168,37,0.18); color: var(--ouro2); border: 1px solid rgba(249,168,37,0.35); }
+.acao-tag.plantar { background: rgba(76,175,80,0.18);  color: var(--verde2); border: 1px solid rgba(76,175,80,0.35); }
+.acao-tag.baixo   { background: rgba(141,110,99,0.2);  color: var(--terra2); border: 1px solid rgba(141,110,99,0.35); }
+.acao-empty { text-align: center; padding: 14px; color: var(--terra2); font-size: 12px; background: var(--bg3); border-radius: 10px; }
+
+/* ── LISTA DE COMPRAS ── */
+.compras-grupo { margin-bottom: 24px; }
+.compras-grupo-titulo {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+  display: flex; align-items: center; gap: 8px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--borda); margin-bottom: 10px;
+}
+.compras-lista { display: flex; flex-direction: column; gap: 6px; }
+.compra-item {
+  background: var(--bg3); border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.compra-check {
+  width: 18px; height: 18px; border: 1.5px solid var(--borda);
+  border-radius: 4px; flex-shrink: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.compra-check:hover { border-color: var(--verde); }
+.compra-check.checked { background: var(--verde); border-color: var(--verde); }
+.compra-check.checked::after { content: '✓'; font-size: 11px; color: #fff; font-weight: 700; }
+.compra-corpo { flex: 1; }
+.compra-nome { font-weight: 600; font-size: 13px; }
+.compra-motivo { font-size: 11px; color: var(--terra2); margin-top: 2px; }
+.compra-pri {
+  font-size: 10px; font-weight: 700; padding: 3px 8px;
+  border-radius: 99px; flex-shrink: 0; white-space: nowrap;
+}
+.pri-urgente { background: rgba(244,67,54,0.18); color: #ef9a9a; border: 1px solid rgba(244,67,54,0.3); }
+.pri-alto    { background: rgba(249,168,37,0.18); color: var(--ouro2); border: 1px solid rgba(249,168,37,0.3); }
+.pri-medio   { background: rgba(66,165,245,0.18); color: #90caf9; border: 1px solid rgba(66,165,245,0.3); }
+
 /* ── MODAL ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0;
@@ -265,6 +342,7 @@ td.cultura-nome .tag {
       <button class="tab active" onclick="showPage('calendario')">📅 Calendário</button>
       <button class="tab" onclick="showPage('escalonamento')">🔄 Canteiros</button>
       <button class="tab" onclick="showPage('banco')">🫙 Banco de Sementes</button>
+      <button class="tab" onclick="showPage('acoes')">🎯 Próximas Ações</button>
     </div>
   </div>
 </header>
@@ -345,6 +423,27 @@ td.cultura-nome .tag {
   </div>
 
   <div class="sementes-grid" id="sementesGrid"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PÁGINA 4 — PRÓXIMAS AÇÕES
+════════════════════════════════════════════ -->
+<div class="page" id="page-acoes">
+
+  <div class="sec-title">🎯 Próximas Ações</div>
+  <div class="sec-sub" style="margin-bottom:20px">Sementes vencendo, o que plantar agora e estoques baixos — atualizado automaticamente.</div>
+
+  <div class="resumo-bar" id="acoesResumo"></div>
+
+  <div id="acoesConteudo"></div>
+
+  <hr style="border:none;border-top:1px solid var(--borda);margin:28px 0">
+
+  <div class="sec-title" style="font-size:18px">🛒 Lista de Compras — Mai/Jun 2026</div>
+  <div class="sec-sub" style="margin-bottom:20px">Sementes que faltam no banco para o plantio de maio/junho. Comprar com validade mínima 2027+. Clique para marcar como comprada.</div>
+
+  <div id="listaCompras"></div>
+
 </div>
 
 </main>
@@ -930,12 +1029,214 @@ document.getElementById('modalOverlay').addEventListener('click', function(e) {
 });
 
 // ─────────────────────────────────────────────
+// PRÓXIMAS AÇÕES
+// ─────────────────────────────────────────────
+const MESES_PT = {jan:0,fev:1,mar:2,abr:3,mai:4,jun:5,jul:6,ago:7,set:8,out:9,nov:10,dez:11};
+
+function parseValidade(notas) {
+  if(!notas) return null;
+  let m = notas.match(/val\s+(\d{2})\/(\d{2})/i);
+  if(m) return new Date(2000 + parseInt(m[2]), parseInt(m[1]) - 1, 1);
+  m = notas.match(/val\s+([a-záéíóúâêî]{3})\/(\d{2})/i);
+  if(m) {
+    const mes = MESES_PT[m[1].toLowerCase()];
+    if(mes !== undefined) return new Date(2000 + parseInt(m[2]), mes, 1);
+  }
+  return null;
+}
+
+function diasAteVencer(data) {
+  if(!data) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  return Math.floor((data - hoje) / 86400000);
+}
+
+function mesAtualIncluido(mesesStr) {
+  if(!mesesStr) return false;
+  const nomeMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][new Date().getMonth()];
+  return mesesStr.includes(nomeMes) || /ano todo/i.test(mesesStr);
+}
+
+function renderAcoes() {
+  const urgentes = [], avisos = [], plantar = [], baixo = [];
+
+  bancoDeSementes.forEach(s => {
+    const val  = parseValidade(s.notas);
+    const dias = diasAteVencer(val);
+    const pct  = Math.round((s.estoque / (s.estoqueMax || 100)) * 100);
+
+    if(dias !== null) {
+      if(dias <= 60)  urgentes.push({...s, dias, val});
+      else if(dias <= 180) avisos.push({...s, dias, val});
+    }
+    if(mesAtualIncluido(s.meses)) plantar.push(s);
+    if(pct < 30 && s.estoque > 0) baixo.push({...s, pct});
+  });
+
+  urgentes.sort((a,b) => a.dias - b.dias);
+  avisos.sort((a,b)   => a.dias - b.dias);
+
+  // Resumo
+  document.getElementById('acoesResumo').innerHTML = [
+    { val: urgentes.length, lab: 'Vence em breve', cls: urgentes.length ? 'red' : 'green' },
+    { val: avisos.length,   lab: 'Atenção 2–6 meses', cls: avisos.length ? 'yellow' : 'green' },
+    { val: plantar.length,  lab: 'Plantar este mês',  cls: 'green' },
+    { val: baixo.length,    lab: 'Estoque baixo',     cls: baixo.length ? 'yellow' : 'green' },
+  ].map(s => `
+    <div class="resumo-stat">
+      <div class="resumo-val ${s.cls}">${s.val}</div>
+      <div class="resumo-lab">${s.lab}</div>
+    </div>`).join('');
+
+  function tagDias(dias) {
+    if(dias < 0)  return `<span class="acao-tag urgente">Vencida</span>`;
+    if(dias === 0) return `<span class="acao-tag urgente">Vence hoje</span>`;
+    return `<span class="acao-tag ${dias<=60?'urgente':'aviso'}">${dias}d restantes</span>`;
+  }
+
+  function itemCard(s, cls, tag) {
+    return `<div class="acao-item ${cls}">
+      <div class="acao-emoji-lg">${s.emoji||'🌱'}</div>
+      <div class="acao-corpo">
+        <div class="acao-nome">${s.nome}${s.variante ? ` <span style="font-weight:400;color:var(--terra2)">${s.variante}</span>` : ''}</div>
+        <div class="acao-detalhe">${s.notas||''}</div>
+      </div>
+      ${tag}
+    </div>`;
+  }
+
+  function secao(titulo, cls, icone, items, tagFn, emptyMsg) {
+    const conteudo = items.length
+      ? `<div class="acoes-lista">${items.map(s => itemCard(s, cls, tagFn(s))).join('')}</div>`
+      : `<div class="acao-empty">${emptyMsg}</div>`;
+    return `<div class="acao-secao">
+      <div class="acao-secao-titulo ${cls}">${icone} ${titulo} <span style="font-weight:400;opacity:.6">(${items.length})</span></div>
+      ${conteudo}
+    </div>`;
+  }
+
+  document.getElementById('acoesConteudo').innerHTML = [
+    secao('Vence nos próximos 2 meses', 'urgente', '🔴',
+      urgentes, s => tagDias(s.dias),
+      '✅ Nenhuma semente com vencimento crítico.'),
+    secao('Atenção — vence em 2 a 6 meses', 'aviso', '🟡',
+      avisos, s => tagDias(s.dias),
+      '✅ Nenhuma semente nesta faixa.'),
+    secao('Plantar agora — mês atual é época ideal', 'plantar', '🌱',
+      plantar, s => `<span class="acao-tag plantar">Plantar agora</span>`,
+      '🌀 Nenhuma semente com época ideal este mês.'),
+    secao('Estoque baixo (< 30%)', 'baixo', '📦',
+      baixo, s => `<span class="acao-tag baixo">${s.pct}% restante</span>`,
+      '✅ Todos os estoques saudáveis.'),
+  ].join('');
+}
+
+// ─────────────────────────────────────────────
+// LISTA DE COMPRAS MAI/JUN 2026
+// ─────────────────────────────────────────────
+const LISTA_COMPRAS_KEY = 'lista_compras_maijun2026';
+
+const COMPRAS = [
+  // URGENTE
+  { id:'c1', pri:'urgente', emoji:'🧅', nome:'Cebola Crioula ou BRS Alfa Tropical',
+    motivo:'Atual (300mg) vence ABR/26 — próximo mês. Comprar nova embalagem val 2027+. Plantar sementeira em abr-mai/26.',
+    qtd:'1 pct (min. 300mg)', grupo:'urgente' },
+  // ALTO
+  { id:'c2', pri:'alto', emoji:'🫘', nome:'Feijão-caupi BRS Pujante',
+    motivo:'Essencial para o Sisteminha Embrapa. Não está no banco. Fixa nitrogênio no solo. Plantar direto em mai.',
+    qtd:'50g+ (planta em fileiras)', grupo:'alto' },
+  { id:'c3', pri:'alto', emoji:'🌿', nome:'Coentro (variedade para calor)',
+    motivo:'Tempero base — ausente no banco. Escalonar a cada 15 dias. Buscar variedade "Santo" ou similar.',
+    qtd:'5–10g', grupo:'alto' },
+  { id:'c4', pri:'alto', emoji:'🧅', nome:'Cebolinha (Allium fistulosum)',
+    motivo:'Tempero essencial — ausente no banco. Produz o ano todo, fácil de cultivar.',
+    qtd:'1 pct (min. 300mg)', grupo:'alto' },
+  { id:'c5', pri:'alto', emoji:'🌿', nome:'Manjericão',
+    motivo:'Não está no banco. Época ideal mai/jun. Companheiro do tomate, repele pulgões.',
+    qtd:'1 pct', grupo:'alto' },
+  { id:'c6', pri:'alto', emoji:'🌸', nome:'Cravo-de-defunto / Tagetes',
+    motivo:'Repelente natural de nematoides e pulgões. Bordadura dos canteiros. Essencial no sistema orgânico.',
+    qtd:'1 pct', grupo:'alto' },
+  { id:'c7', pri:'alto', emoji:'🌽', nome:'Milho BRS Caatingueiro',
+    motivo:'Necessário para o consórcio Milpa (Milho+Feijão+Abóbora). Variedade Embrapa para semiárido PE.',
+    qtd:'200g+', grupo:'alto' },
+  { id:'c8', pri:'alto', emoji:'🎃', nome:'Abóbora Jacarezinho ou Cabotiá',
+    motivo:'Terceira perna do consórcio Milpa. Não está no banco. Plantar nas chuvas mai.',
+    qtd:'1 pct', grupo:'alto' },
+  // MÉDIO
+  { id:'c9', pri:'medio', emoji:'🌿', nome:'Salsinha (Salsa)',
+    motivo:'Não está no banco. Ciclo 70–80 dias, germinação lenta. Plantar mai para colheita ago.',
+    qtd:'1 pct', grupo:'medio' },
+  { id:'c10', pri:'medio', emoji:'🌻', nome:'Girassol',
+    motivo:'Atrai polinizadores, sementes comestíveis. Plantar bordas em mai. Ciclo 70–90 dias.',
+    qtd:'1 pct', grupo:'medio' },
+  { id:'c11', pri:'medio', emoji:'🥦', nome:'Brócolis Ramoso Verde Piracicaba',
+    motivo:'Mai ainda dá no PE (bordeline). Mais tolerante ao calor que híbridos. Ciclo 70–90 dias.',
+    qtd:'1 pct', grupo:'medio' },
+];
+
+const GRUPOS_COMPRAS = [
+  { id:'urgente', titulo:'🔴 URGENTE — Comprar esta semana', cls:'urgente' },
+  { id:'alto',    titulo:'🟡 ALTA PRIORIDADE — Comprar em abril', cls:'aviso' },
+  { id:'medio',   titulo:'🔵 MÉDIO — Comprar antes de maio', cls:'plantar' },
+];
+
+function carregarComprasFeitas() {
+  return JSON.parse(localStorage.getItem(LISTA_COMPRAS_KEY) || '[]');
+}
+
+function salvarCompraFeita(id, feita) {
+  const feitas = carregarComprasFeitas();
+  const novo = feita ? [...new Set([...feitas, id])] : feitas.filter(x => x !== id);
+  localStorage.setItem(LISTA_COMPRAS_KEY, JSON.stringify(novo));
+}
+
+function toggleCompra(id) {
+  const feitas = carregarComprasFeitas();
+  const jaMarcada = feitas.includes(id);
+  salvarCompraFeita(id, !jaMarcada);
+  renderListaCompras();
+}
+
+function renderListaCompras() {
+  const feitas = carregarComprasFeitas();
+  const el = document.getElementById('listaCompras');
+  if(!el) return;
+
+  el.innerHTML = GRUPOS_COMPRAS.map(g => {
+    const itens = COMPRAS.filter(c => c.grupo === g.id);
+    const pendentes = itens.filter(c => !feitas.includes(c.id)).length;
+    return `<div class="compras-grupo">
+      <div class="compras-grupo-titulo acao-secao-titulo ${g.cls}">
+        ${g.titulo}
+        <span style="font-weight:400;opacity:.6">${pendentes}/${itens.length} pendentes</span>
+      </div>
+      <div class="compras-lista">
+        ${itens.map(c => {
+          const marcada = feitas.includes(c.id);
+          return `<div class="compra-item" style="${marcada?'opacity:.5':''}">
+            <div class="compra-check ${marcada?'checked':''}" onclick="toggleCompra('${c.id}')"></div>
+            <div class="compra-corpo">
+              <div class="compra-nome">${c.emoji} ${c.nome} <span style="font-size:11px;font-weight:400;color:var(--terra2)">${c.qtd}</span></div>
+              <div class="compra-motivo">${c.motivo}</div>
+            </div>
+            <span class="compra-pri pri-${c.pri}">${c.pri.toUpperCase()}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 renderClima();
 renderTabela();
 renderCanteiros();
 renderBanco();
+renderAcoes();
+renderListaCompras();
 </script>
 </body>
 </html>
