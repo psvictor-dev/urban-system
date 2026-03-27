@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Claude Code
+.claude/
+
+# Vídeos e arquivos grandes (use YouTube, Drive ou Git LFS)
+docs/*.mov
+docs/*.mp4
+docs/*.avi
+docs/*.mkv
