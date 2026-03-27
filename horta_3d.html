@@ -176,7 +176,7 @@
 <div id="canvas-container">
   <canvas id="c"></canvas>
 
-  <div class="badge">4 Canteiros &middot; 5&times;1,4m &middot; 28m&sup2;</div>
+  <div class="badge">4 Canteiros + Sementeira &middot; 5&times;1,4m &middot; 28m&sup2;</div>
 
   <div class="drag-hint" id="hint">
     🖱 Arraste para girar &middot; Scroll para zoom
@@ -189,6 +189,7 @@
     <div class="info-row"><span>Espacamento</span><span class="info-val">0.8m</span></div>
     <div class="info-row"><span>Orientacao</span><span class="info-val">L-O</span></div>
     <div class="info-row"><span>Ciclo</span><span class="info-val">~35-90 dias</span></div>
+    <div class="info-row"><span>Sementeira</span><span class="info-val">1,4&times;1,0m</span></div>
   </div>
 
   <div class="legend">
@@ -197,6 +198,7 @@
     <div class="leg-item"><div class="leg-dot" style="background:#FF8F00"></div>Cant. 2 — raizes</div>
     <div class="leg-item"><div class="leg-dot" style="background:#E53935"></div>Cant. 3 — tomate/solanac.</div>
     <div class="leg-item"><div class="leg-dot" style="background:#AED581"></div>Cant. 4 — ervas</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#CDDC39"></div>Sementeira</div>
     <div class="leg-item"><div class="leg-dot" style="background:#64B5F6"></div>Irrigacao por gotejo</div>
   </div>
 </div>
@@ -304,6 +306,36 @@ function sphere(r, seg, mat, x, y, z) {
   return m;
 }
 
+// ─── LABEL SPRITES (canvas texture) ─────────────────────────────
+const labelGroup = new THREE.Group();
+scene.add(labelGroup);
+
+function makeLabel(line1, line2, color1='#ffffff', color2='#A5D6A7') {
+  const W = 320, H = 72;
+  const cv2 = document.createElement('canvas');
+  cv2.width = W; cv2.height = H;
+  const ctx = cv2.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(0,0,0,0.72)';
+  ctx.beginPath();
+  ctx.roundRect ? ctx.roundRect(0, 0, W, H, 10) : ctx.rect(0, 0, W, H);
+  ctx.fill();
+  ctx.font = 'bold 24px Nunito, sans-serif';
+  ctx.fillStyle = color2;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(line1, W/2, H * 0.32);
+  ctx.font = '17px Nunito, sans-serif';
+  ctx.fillStyle = color1;
+  ctx.fillText(line2, W/2, H * 0.72);
+  const tex = new THREE.CanvasTexture(cv2);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+  const sp  = new THREE.Sprite(mat);
+  sp.scale.set(3.5, 0.75, 1);
+  labelGroup.add(sp);
+  return sp;
+}
+
 // ─── LAYOUT CONSTANTS ────────────────────────────────────────────
 // Scale: 1 unit = 1 meter
 // Each bed: 5m (X) × 1.4m (Z) × 0.35m high
@@ -404,6 +436,18 @@ function makeBed(bedZ) {
 }
 
 BED_Z.forEach(bz => makeBed(bz));
+
+// ─── BED LABELS ───────────────────────────────────────────────────
+const bedLabels = [
+  ['Canteiro 1 — Folhosas', 'Alface · Couve · Rúcula',          '#ffffff', '#A5D6A7'],
+  ['Canteiro 2 — Raízes',   'Cenoura · Beterraba',               '#ffffff', '#FFB74D'],
+  ['Canteiro 3 — Solanáceas','Tomate · Tomate Cereja',           '#ffffff', '#EF9A9A'],
+  ['Canteiro 4 — Ervas',    'Melissa · Anis · Camomila',         '#ffffff', '#C5E1A5'],
+];
+bedLabels.forEach(([l1, l2, c1, c2], i) => {
+  const lbl = makeLabel(l1, l2, c1, c2);
+  lbl.position.set(0, 1.1, BED_Z[i]);
+});
 
 // ─── SOIL FILL inside each bed ───────────────────────────────────
 BED_Z.forEach(bz => {
@@ -578,6 +622,56 @@ BED_Z.forEach(bz => {
       sphere(0.03, 5, mat, px, topY + clH + 0.03, pz);
     }
   }
+})();
+
+// ─── CANTEIRO 5 — SEMENTEIRA (1.4m × 1.0m) ──────────────────────
+// Placed at the South end, offset beyond BED_Z[3], with a small gap
+(function makeSementeira() {
+  const SBW   = 1.4;   // width along X
+  const SBD   = 1.0;   // depth along Z
+  const SBH   = 0.25;  // shorter than normal beds
+  const PT    = PLANK_T;
+  const sx    = 0;                                      // centered X
+  const sz    = BED_Z[3] + BED_D/2 + WALKWAY + SBD/2;  // just past last bed
+  const shh   = SBH / 2;
+
+  // Wood frame — same style as makeBed but smaller/shorter
+  box(SBW, SBH, PT, MAT.woodDark,  sx, shh, sz - SBD/2);
+  box(SBW, SBH, PT, MAT.woodDark,  sx, shh, sz + SBD/2);
+  box(PT, SBH, SBD - PT*2, MAT.woodMed, sx - SBW/2 + PT/2, shh, sz);
+  box(PT, SBH, SBD - PT*2, MAT.woodMed, sx + SBW/2 - PT/2, shh, sz);
+  // Corner posts
+  const cx2 = SBW/2 - PT/2, cz2 = SBD/2 - PT/2;
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([qx,qz]) => {
+    cyl(0.04, 0.04, SBH + 0.06, 6, MAT.woodDark, sx + qx*cx2, shh + 0.03, sz + qz*cz2);
+  });
+
+  // Soil base
+  const soilW2 = SBW - PT*2, soilD2 = SBD - PT*2;
+  box(soilW2, 0.02, soilD2, MAT.soilRich, sx, SBH - 0.06, sz);
+
+  // Seedling trays — small flat boxes in a 3×4 grid (light green/yellow)
+  const trayMat = new THREE.MeshLambertMaterial({ color: 0xCDDC39 });
+  const trayTopMat = new THREE.MeshLambertMaterial({ color: 0xF9A825, transparent: true, opacity: 0.85 });
+  const cols5 = 3, rows5 = 4;
+  const tW = (soilW2 - 0.06) / cols5, tD = (soilD2 - 0.06) / rows5;
+  for(let r = 0; r < rows5; r++) {
+    for(let c = 0; c < cols5; c++) {
+      const tx = sx - soilW2/2 + tW/2 + c*tW + 0.015;
+      const tz = sz - soilD2/2 + tD/2 + r*tD + 0.015;
+      const ty = SBH - 0.04;
+      // tray body
+      box(tW - 0.02, 0.04, tD - 0.02, trayMat, tx, ty, tz);
+      // soil/seedling top (flat, slightly lighter)
+      box(tW - 0.04, 0.015, tD - 0.04, trayTopMat, tx, ty + 0.028, tz);
+      // tiny seedling sprout (small sphere per tray)
+      sphere(0.025, 4, new THREE.MeshLambertMaterial({color:0x8BC34A}), tx, ty + 0.06, tz);
+    }
+  }
+
+  // Label
+  const lblS = makeLabel('Sementeira', '1,4m × 1,0m', '#ffffff', '#DCE775');
+  lblS.position.set(sx, 1.1, sz);
 })();
 
 // ─── IRRIGATION — horizontal pipe + drip emitters ────────────────

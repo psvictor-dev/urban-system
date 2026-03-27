@@ -179,7 +179,7 @@
 <div id="canvas-container">
   <canvas id="c"></canvas>
 
-  <div class="badge">Tanque Tilápias · Ø 6m · 28.000L</div>
+  <div class="badge">Tanque Tilápias · Ø 4,4m · 12.000L</div>
 
   <div class="drag-hint" id="hint">
     🖱 Arraste para girar · Scroll para zoom
@@ -187,11 +187,11 @@
 
   <div class="info-panel">
     <h4>ESPECIFICAÇÕES</h4>
-    <div class="info-row"><span>Diâmetro</span><span class="info-val">6m</span></div>
-    <div class="info-row"><span>Profundidade</span><span class="info-val">1,0m</span></div>
-    <div class="info-row"><span>Volume</span><span class="info-val">~28.000L</span></div>
-    <div class="info-row"><span>Tilápias</span><span class="info-val">~200 und.</span></div>
-    <div class="info-row"><span>Prod./ciclo</span><span class="info-val">~60kg</span></div>
+    <div class="info-row"><span>Diâmetro</span><span class="info-val">4,4m</span></div>
+    <div class="info-row"><span>Altura</span><span class="info-val">0,8m</span></div>
+    <div class="info-row"><span>Volume</span><span class="info-val">~12.000L</span></div>
+    <div class="info-row"><span>Tilápias</span><span class="info-val">~150 und.</span></div>
+    <div class="info-row"><span>Prod./ciclo</span><span class="info-val">~45kg</span></div>
     <div class="info-row"><span>Ciclo</span><span class="info-val">6–8 meses</span></div>
   </div>
 
@@ -222,8 +222,8 @@ const scene = new THREE.Scene();
 scene.fog   = new THREE.FogExp2(0x0d1a0e, 0.022);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
-camera.position.set(12, 9, 14);
-camera.lookAt(0, 0.6, 0);
+camera.position.set(9, 7, 11);
+camera.lookAt(0, 0.4, 0);
 
 function resize() {
   const w = container.clientWidth, h = container.clientHeight;
@@ -244,10 +244,10 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.camera.near   = 0.5;
 sun.shadow.camera.far    = 80;
-sun.shadow.camera.left   = -12;
-sun.shadow.camera.right  = 12;
-sun.shadow.camera.top    = 12;
-sun.shadow.camera.bottom = -12;
+sun.shadow.camera.left   = -10;
+sun.shadow.camera.right  = 10;
+sun.shadow.camera.top    = 10;
+sun.shadow.camera.bottom = -10;
 scene.add(sun);
 
 const fill = new THREE.DirectionalLight(0x90caf9, 0.5);
@@ -318,8 +318,8 @@ bgGround.position.y = -0.01;
 bgGround.receiveShadow = true;
 scene.add(bgGround);
 
-// gravel ring around tank base (Ø3.2m → Ø5m ring)
-const gravelRingGeo = new THREE.RingGeometry(3.25, 5.0, 64);
+// gravel ring around tank base (Ø2.45m → Ø4.2m ring)
+const gravelRingGeo = new THREE.RingGeometry(2.5, 4.2, 64);
 const gravelRing = new THREE.Mesh(gravelRingGeo, MAT.gravel);
 gravelRing.rotation.x = -Math.PI / 2;
 gravelRing.position.y = 0.005;
@@ -340,15 +340,15 @@ for (let i = 0; i < 40; i++) {
 }
 
 // ─── TANK WALL — outer cylinder + inner cylinder ─────────────────
-// Outer wall: r=3.2, wall thickness ~0.25m → inner face r≈2.95
-const wallH = 1.2;
+// Outer wall: r=2.45, wall thickness ~0.25m → inner face r≈2.2
+const wallH = 0.8;
 const wallY = wallH / 2;
 
-const outerWall = cyl(3.2, 3.2, wallH, 64, MAT.concrete, 0, wallY, 0);
-const innerWall = cyl(2.95, 2.95, wallH + 0.02, 64, MAT.concreteIn, 0, wallY, 0);
+const outerWall = cyl(2.45, 2.45, wallH, 64, MAT.concrete, 0, wallY, 0);
+const innerWall = cyl(2.2, 2.2, wallH + 0.02, 64, MAT.concreteIn, 0, wallY, 0);
 
 // wall top rim (thin flat ring)
-const rimGeo = new THREE.RingGeometry(2.95, 3.22, 64);
+const rimGeo = new THREE.RingGeometry(2.2, 2.47, 64);
 const rim = new THREE.Mesh(rimGeo, MAT.concrete);
 rim.rotation.x = -Math.PI / 2;
 rim.position.y = wallH + 0.01;
@@ -356,19 +356,19 @@ rim.receiveShadow = true;
 scene.add(rim);
 
 // tank floor (concrete disc inside)
-const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(2.95, 64), MAT.concreteIn);
+const floorDisc = new THREE.Mesh(new THREE.CircleGeometry(2.2, 64), MAT.concreteIn);
 floorDisc.rotation.x = -Math.PI / 2;
 floorDisc.position.y = 0.01;
 floorDisc.receiveShadow = true;
 scene.add(floorDisc);
 
 // ─── WATER BODY ─────────────────────────────────────────────────
-const waterH = 0.9;
-const water = cyl(2.9, 2.9, waterH, 64, MAT.water, 0, waterH / 2 + 0.02, 0);
+const waterH = 0.62;
+const water = cyl(2.15, 2.15, waterH, 64, MAT.water, 0, waterH / 2 + 0.02, 0);
 
 // water surface (very thin disc, shimmer)
 const waterSurf = new THREE.Mesh(
-  new THREE.CircleGeometry(2.88, 64),
+  new THREE.CircleGeometry(2.13, 64),
   MAT.waterSurf
 );
 waterSurf.rotation.x = -Math.PI / 2;
@@ -376,82 +376,41 @@ waterSurf.position.y = waterH + 0.025;
 scene.add(waterSurf);
 
 // ─── FISH ──────────────────────────────────────────────────────
-// Each fish: scaled ellipsoid body + small tail fin
+// 150 simplified fish: small scaled spheres grouped by orbital radius
 const fishData = [];
-const fishCount = 15;
-const fishColors = [
-  MAT.fishOrange, MAT.fishOrange, MAT.fishOrange,
-  MAT.fishSilver, MAT.fishSilver, MAT.fishSilver,
-  MAT.fishGold,   MAT.fishGold,
-  MAT.fishOrange, MAT.fishSilver, MAT.fishGold,
-  MAT.fishOrange, MAT.fishSilver, MAT.fishOrange, MAT.fishSilver,
+const fishMats = [MAT.fishOrange, MAT.fishSilver, MAT.fishGold];
+const fishBodyGeo = new THREE.SphereGeometry(0.08, 5, 3);
+
+// Groups at different radii and depths
+const fishGroups = [
+  { orbitR: 0.8,  depthMin: 0.06, depthMax: 0.28, count: 30 },
+  { orbitR: 1.2,  depthMin: 0.06, depthMax: 0.42, count: 40 },
+  { orbitR: 1.6,  depthMin: 0.06, depthMax: 0.50, count: 45 },
+  { orbitR: 2.0,  depthMin: 0.06, depthMax: 0.52, count: 35 },
 ];
 
-function makeFish(colorMat) {
-  const g = new THREE.Group();
-
-  // body — stretched sphere
-  const bodyGeo = new THREE.SphereGeometry(0.18, 10, 7);
-  const body = new THREE.Mesh(bodyGeo, colorMat);
-  body.scale.set(2.0, 0.6, 1.0);
-  g.add(body);
-
-  // tail fin — thin flat triangle-like box
-  const tailMat = new THREE.MeshLambertMaterial({
-    color: colorMat.color,
-    transparent: true,
-    opacity: 0.75,
-  });
-  const tail = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.16, 0.18), tailMat);
-  tail.position.set(-0.38, 0, 0);
-  g.add(tail);
-
-  // dorsal fin
-  const dorsalMat = new THREE.MeshLambertMaterial({
-    color: colorMat.color,
-    transparent: true,
-    opacity: 0.65,
-  });
-  const dorsal = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.1, 0.03), dorsalMat);
-  dorsal.position.set(0.05, 0.12, 0);
-  g.add(dorsal);
-
-  // eye
-  const eye = new THREE.Mesh(
-    new THREE.SphereGeometry(0.03, 6, 4),
-    new THREE.MeshLambertMaterial({ color: 0x1a1a1a })
-  );
-  eye.position.set(0.32, 0.04, 0.1);
-  g.add(eye);
-
-  return g;
-}
-
-for (let i = 0; i < fishCount; i++) {
-  const fish = makeFish(fishColors[i]);
-  // random orbital params
-  const radius    = 1.5 + Math.random() * 0.7;    // 1.5 – 2.2m
-  const depth     = 0.08 + Math.random() * 0.68;  // Y in water column
-  const speed     = 0.28 + Math.random() * 0.25;  // rad/sec
-  const phase     = Math.random() * Math.PI * 2;
-  const direction = Math.random() < 0.5 ? 1 : -1; // CW or CCW
-  const wobble    = 0.04 + Math.random() * 0.06;  // vertical bob amplitude
-  const wobbleSpd = 1.5  + Math.random() * 1.5;
-
-  fish.position.set(
-    Math.cos(phase) * radius,
-    depth,
-    Math.sin(phase) * radius
-  );
-  scene.add(fish);
-  fishData.push({ mesh: fish, radius, depth, speed, phase, direction, wobble, wobbleSpd });
-}
+fishGroups.forEach(grp => {
+  for (let i = 0; i < grp.count; i++) {
+    const mat = fishMats[Math.floor(Math.random() * fishMats.length)];
+    const mesh = new THREE.Mesh(fishBodyGeo, mat);
+    mesh.scale.set(1.6, 0.5, 1.0);
+    const phase     = Math.random() * Math.PI * 2;
+    const depth     = grp.depthMin + Math.random() * (grp.depthMax - grp.depthMin);
+    const speed     = 0.28 + Math.random() * 0.25;
+    const direction = Math.random() < 0.5 ? 1 : -1;
+    const wobble    = 0.03 + Math.random() * 0.05;
+    const wobbleSpd = 1.5  + Math.random() * 1.5;
+    mesh.position.set(Math.cos(phase) * grp.orbitR, depth, Math.sin(phase) * grp.orbitR);
+    scene.add(mesh);
+    fishData.push({ mesh, radius: grp.orbitR, depth, speed, phase, direction, wobble, wobbleSpd });
+  }
+});
 
 // ─── AERADOR — central vertical pipe ────────────────────────────
-const aerPipe = cyl(0.05, 0.05, 1.4, 10, MAT.pipeGray, 0, 0.7, 0);
+const aerPipe = cyl(0.05, 0.05, 0.9, 10, MAT.pipeGray, 0, 0.45, 0);
 
 // aerator top cap
-const aerCap = cyl(0.1, 0.1, 0.06, 10, MAT.pipeGray, 0, 1.43, 0);
+const aerCap = cyl(0.1, 0.1, 0.06, 10, MAT.pipeGray, 0, 0.93, 0);
 
 // bubble ring at water surface — animated
 const bubbleRing = new THREE.Mesh(
@@ -472,10 +431,10 @@ bubbleRing2.position.set(0, waterH + 0.032, 0);
 scene.add(bubbleRing2);
 
 // ─── FEED PIPE — diagonal from outside rim ──────────────────────
-// Pipe starts at (3.6, 1.3, 0) going to (2.2, 0.5, 0) — angled ~30°
+// Pipe starts at (2.8, 0.9, 0) going to (1.8, 0.35, 0) — angled ~30°
 {
-  const start = new THREE.Vector3(3.6, 1.3, 0);
-  const end   = new THREE.Vector3(2.2, 0.45, 0);
+  const start = new THREE.Vector3(2.8, 0.9, 0);
+  const end   = new THREE.Vector3(1.8, 0.35, 0);
   const dir   = new THREE.Vector3().subVectors(end, start);
   const len   = dir.length();
   const mid   = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
@@ -507,7 +466,7 @@ scene.add(bubbleRing2);
 {
   // A short pipe stub protruding from the outer wall, positioned at angle=120°
   const angle = (120 * Math.PI) / 180;
-  const drainR = 3.25;
+  const drainR = 2.5;
   const drainX = Math.cos(angle) * drainR;
   const drainZ = Math.sin(angle) * drainR;
 
@@ -555,8 +514,8 @@ scene.add(bubbleRing2);
     new THREE.BoxGeometry(0.3, 0.15, plankLen),
     MAT.wood
   );
-  // center the plank between ground at Z=3.7 and wall top at Z≈3.2
-  plank.position.set(0, wallH / 2, 3.2 + plankLen * Math.cos(plankAngle) / 2 - 0.1);
+  // center the plank between ground at Z=2.9 and wall top at Z≈2.45
+  plank.position.set(0, wallH / 2, 2.45 + plankLen * Math.cos(plankAngle) / 2 - 0.1);
   plank.rotation.x = -plankAngle * 0.6;
   plank.castShadow = true;
   scene.add(plank);
@@ -654,7 +613,7 @@ wallGroup.add(innerWall);
 // We achieve this by swapping full-circle walls with 270° arc walls
 const outerWallCut = new THREE.Mesh(
   // 270° arc = from 45° to 315° = from PI/4 to 7*PI/4
-  new THREE.CylinderGeometry(3.2, 3.2, wallH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  new THREE.CylinderGeometry(2.45, 2.45, wallH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
   MAT.concrete
 );
 outerWallCut.position.y = wallY;
@@ -663,7 +622,7 @@ outerWallCut.visible = false;
 scene.add(outerWallCut);
 
 const innerWallCut = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.95, 2.95, wallH + 0.02, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  new THREE.CylinderGeometry(2.2, 2.2, wallH + 0.02, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
   MAT.concreteIn
 );
 innerWallCut.position.y = wallY;
@@ -672,7 +631,7 @@ innerWallCut.visible = false;
 scene.add(innerWallCut);
 
 const waterCut = new THREE.Mesh(
-  new THREE.CylinderGeometry(2.9, 2.9, waterH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
+  new THREE.CylinderGeometry(2.15, 2.15, waterH, 48, 1, true, Math.PI * 0.25, Math.PI * 1.5),
   MAT.water
 );
 waterCut.position.y = waterH / 2 + 0.02;
@@ -680,14 +639,14 @@ waterCut.visible = false;
 scene.add(waterCut);
 
 // cross-section cut face (flat ring showing wall thickness)
-const cutFaceGeo = new THREE.RingGeometry(2.95, 3.2, 2, 1);
+const cutFaceGeo = new THREE.RingGeometry(2.2, 2.45, 2, 1);
 // Two cut faces at the two cut edges
 function makeCutFace(angle) {
   const face = new THREE.Mesh(
     new THREE.PlaneGeometry(0.25, wallH),
     MAT.concrete
   );
-  const r = (2.95 + 3.2) / 2;
+  const r = (2.2 + 2.45) / 2;
   face.position.set(Math.cos(angle) * r, wallY, Math.sin(angle) * r);
   face.rotation.y = -(angle + Math.PI / 2);
   face.visible = false;
@@ -699,7 +658,7 @@ const cutFace2 = makeCutFace(Math.PI * 1.75);
 
 // water inner face for cut
 const waterFaceInner = new THREE.Mesh(
-  new THREE.PlaneGeometry(2.9 * 2, waterH),
+  new THREE.PlaneGeometry(2.15 * 2, waterH),
   new THREE.MeshLambertMaterial({ color: 0x1565C0, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
 );
 waterFaceInner.position.set(0, waterH / 2, 0);
@@ -709,7 +668,7 @@ scene.add(waterFaceInner);
 
 // ─── ORBIT CONTROLS (manual) ────────────────────────────────────
 let isDragging = false, prevX = 0, prevY = 0;
-let theta = 0.75, phi = 0.55, radius = 20;
+let theta = 0.75, phi = 0.55, radius = 15;
 let autoRotate = false;
 let targetTheta = theta, targetPhi = phi, targetRadius = radius;
 
@@ -717,7 +676,7 @@ function updateCamera() {
   camera.position.x = radius * Math.sin(theta) * Math.cos(phi);
   camera.position.y = radius * Math.sin(phi);
   camera.position.z = radius * Math.cos(theta) * Math.cos(phi);
-  camera.lookAt(0, 0.6, 0);
+  camera.lookAt(0, 0.4, 0);
 }
 updateCamera();
 
@@ -756,14 +715,14 @@ function setView(v, btn) {
     setCutMode(false);
   }
 
-  if (v === 'iso')     { targetTheta = 0.75;         targetPhi = 0.55;  targetRadius = 20; }
-  if (v === 'topo')    { targetTheta = 0;             targetPhi = 1.45;  targetRadius = 18; }
-  if (v === 'frente')  { targetTheta = 0;             targetPhi = 0.28;  targetRadius = 18; }
-  if (v === 'lateral') { targetTheta = Math.PI / 2;  targetPhi = 0.28;  targetRadius = 18; }
+  if (v === 'iso')     { targetTheta = 0.75;         targetPhi = 0.55;  targetRadius = 15; }
+  if (v === 'topo')    { targetTheta = 0;             targetPhi = 1.45;  targetRadius = 14; }
+  if (v === 'frente')  { targetTheta = 0;             targetPhi = 0.28;  targetRadius = 14; }
+  if (v === 'lateral') { targetTheta = Math.PI / 2;  targetPhi = 0.28;  targetRadius = 14; }
   if (v === 'corte') {
     targetTheta = -Math.PI * 0.2;
     targetPhi   = 0.45;
-    targetRadius = 16;
+    targetRadius = 12;
     cutMode = true;
     setCutMode(true);
   }
@@ -815,10 +774,6 @@ function animate() {
 
     // gentle body roll
     f.mesh.rotation.z = Math.sin(t * 1.2 + i * 0.6) * 0.12;
-
-    // tail wiggle — oscillate scale on Z
-    const wiggle = 1.0 + Math.sin(t * 6 + i) * 0.06;
-    f.mesh.children[0].scale.z = wiggle;
   });
 
   // ── AERATOR BUBBLE PULSE ──
