@@ -105,11 +105,9 @@
 <script>
 // ── Scene setup ──────────────────────────────────────────────────────────────
 const container = document.getElementById('canvas-container');
-const W = container.clientWidth, H = container.clientHeight;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(W, H);
-renderer.setPixelRatio(devicePixelRatio);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 container.appendChild(renderer.domElement);
@@ -118,9 +116,19 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a2a1a);
 scene.fog = new THREE.Fog(0x1a2a1a, 25, 55);
 
-const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 camera.position.set(12, 10, 14);
 camera.lookAt(0, 0, 0);
+
+function resizeRenderer() {
+  const w = container.clientWidth || window.innerWidth;
+  const h = container.clientHeight || window.innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resizeRenderer();
+window.addEventListener('resize', resizeRenderer);
 
 // ── Lighting ─────────────────────────────────────────────────────────────────
 scene.add(new THREE.AmbientLight(0xffffff, 0.45));
@@ -312,7 +320,9 @@ function makeLabel(text, color = '#ffffff', bg = 'rgba(0,0,0,0.65)') {
   canvas.width = 256; canvas.height = 64;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = bg;
-  ctx.beginPath(); ctx.roundRect(4, 4, 248, 56, 10); ctx.fill();
+  ctx.beginPath();
+  if (ctx.roundRect) { ctx.roundRect(4, 4, 248, 56, 10); } else { ctx.rect(4, 4, 248, 56); }
+  ctx.fill();
   ctx.fillStyle = color;
   ctx.font = 'bold 22px Arial';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -444,13 +454,7 @@ function toggleAuto() {
   document.getElementById('btn-auto').classList.toggle('active', autoRotate);
 }
 
-// ── Resize ────────────────────────────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  const w = container.clientWidth, h = container.clientHeight;
-  renderer.setSize(w, h);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-});
+// ── Resize já registrado acima via resizeRenderer ────────────────────────────
 
 // ── Animate ───────────────────────────────────────────────────────────────────
 function animate() {

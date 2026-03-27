@@ -142,11 +142,11 @@
   <div class="info-panel">
     <h4>SISTEMINHA EMBRAPA</h4>
     <div class="info-row"><span>Área total</span><span class="info-val">400m²</span></div>
-    <div class="info-row"><span>A1 — Tilápia</span><span class="info-val">~100m²</span></div>
-    <div class="info-row"><span>A2 — Compost</span><span class="info-val">32m²</span></div>
-    <div class="info-row"><span>B1 — Horta</span><span class="info-val">~100m²</span></div>
-    <div class="info-row"><span>B2 — Galinheiro</span><span class="info-val">48m²</span></div>
-    <div class="info-row"><span>Canteiros</span><span class="info-val">4 × 7m²</span></div>
+    <div class="info-row"><span>A1 — Tilápia Ø4,4m</span><span class="info-val">~15m²</span></div>
+    <div class="info-row"><span>A2 — 4 leiras 3×1m</span><span class="info-val">12m²</span></div>
+    <div class="info-row"><span>A2 — Minhocário 2×3×1,2m</span><span class="info-val">7,2m²</span></div>
+    <div class="info-row"><span>B1 — Horta 4 canteiros</span><span class="info-val">28m²</span></div>
+    <div class="info-row"><span>B2 — Galinheiro 4×6m</span><span class="info-val">24m²</span></div>
     <div class="info-row"><span>Galinhas</span><span class="info-val">~20 aves</span></div>
   </div>
 
@@ -155,7 +155,7 @@
     <div class="leg-item"><div class="leg-dot" style="background:#42A5F5"></div>A1 — Tanque Tilápias</div>
     <div class="leg-item"><div class="leg-dot" style="background:#8D6E63"></div>A2 — Composteira + Minhocário</div>
     <div class="leg-item"><div class="leg-dot" style="background:#66BB6A"></div>B1 — Horta (4 canteiros)</div>
-    <div class="leg-item"><div class="leg-dot" style="background:#E8A040"></div>B2 — Galinheiro 8×6m</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#E8A040"></div>B2 — Galinheiro 4×6m</div>
     <div class="leg-item"><div class="leg-dot" style="background:#A1887F;opacity:.5"></div>Caminhos (1m)</div>
   </div>
 </div>
@@ -398,75 +398,97 @@ const lblA2 = makeLabel('B1 — HORTA', '4 canteiros · 5×1,4m · 28m² cultiva
 lblA2.position.set(-5, 2.2, 5);
 
 // ═══════════════════════════════════════════════════════════════
-// A2 — COMPOSTEIRA (4×4m) + MINHOCÁRIO (4×4m)
-// center A2: (5, 0, -5); Composteira at (3, 0, -5), Minhocário at (7, 0, -5)
+// A2 — COMPOSTEIRA (4 leiras 3×1m) + MINHOCÁRIO (2 canteiros 3×1,2m elevados)
+// zone A2 center: (5, 0, -5) · Composteira X≈2.5 · Minhocário X≈7.5
 // ═══════════════════════════════════════════════════════════════
 
-// ── COMPOSTEIRA (-7, 0, 5) ──
-function makeComposteira(cx, cz) {
-  const W = 4, D = 4, H = 1.4;
-  // walls (open top) — 4 sides
-  box(W,   H, 0.14, M.woodDark, cx,      H/2, cz-D/2+0.07); // front
-  box(W,   H, 0.14, M.woodDark, cx,      H/2, cz+D/2-0.07); // back
-  box(0.14,H, D,    M.woodDark, cx-W/2+0.07, H/2, cz);       // left
-  box(0.14,H, D,    M.woodDark, cx+W/2-0.07, H/2, cz);       // right
-  // horizontal slats
-  for(let y=0.4; y<H; y+=0.35) {
-    box(W, 0.06, 0.06, M.wood, cx, y, cz-D/2+0.1);
-    box(W, 0.06, 0.06, M.wood, cx, y, cz+D/2-0.1);
-    box(0.06, 0.06, D, M.wood, cx-W/2+0.1, y, cz);
-    box(0.06, 0.06, D, M.wood, cx+W/2-0.1, y, cz);
-  }
-  // compost content (dark rich soil, slightly mounded)
-  box(3.6, 0.7, 3.6, M.compost,  cx, 0.35, cz);
-  cyl(1.4, 1.7, 0.15, 16, M.soilRich, cx, 0.72, cz);
-  // steam / activity dots
-  [[-0.6,-0.3],[0.3,0.5],[-0.2,0.6]].forEach(([ox,oz]) => {
-    cyl(0.08, 0.04, 0.18, 5, new THREE.MeshLambertMaterial({color:0x795548}), cx+ox, 1.2+Math.abs(ox)*0.1, cz+oz);
-  });
-}
-makeComposteira(3, -5);
+const sombMat = new THREE.MeshLambertMaterial({ color: 0x111111, transparent: true, opacity: 0.4 });
 
-// ── MINHOCÁRIO (-3, 0, 5) ──
-function makeMinhocario(cx, cz) {
-  const W = 4, D = 4;
-  // 3 stacked horizontal trays
-  const traySizes = [
-    { w:W, d:D, y:0.15 },
-    { w:W-0.2, d:D-0.2, y:0.55 },
-    { w:W-0.4, d:D-0.4, y:0.92 },
-  ];
-  traySizes.forEach((t, i) => {
-    // tray frame (4 walls)
-    const h = 0.3;
-    box(t.w, h, 0.1, M.wood, cx, t.y, cz - t.d/2 + 0.05);
-    box(t.w, h, 0.1, M.wood, cx, t.y, cz + t.d/2 - 0.05);
-    box(0.1, h, t.d, M.wood, cx - t.w/2 + 0.05, t.y, cz);
-    box(0.1, h, t.d, M.wood, cx + t.w/2 - 0.05, t.y, cz);
-    // bottom/tray floor
-    box(t.w - 0.1, 0.05, t.d - 0.1, M.woodDark, cx, t.y - h/2 + 0.025, cz);
-    // soil content
-    box(t.w - 0.2, 0.12, t.d - 0.2, M.soilRich, cx, t.y + 0.06, cz);
-  });
-  // worm indicator dots on top tray
-  for(let w=0; w<6; w++) {
-    const wx = cx - 1.5 + (w % 3) * 1.5 + (Math.sin(w)*0.3);
-    const wz = cz - 0.8 + Math.floor(w/3) * 1.6;
-    cyl(0.04, 0.04, 0.22, 4, M.worm, wx, 1.15, wz, Math.PI/2);
-  }
-}
-makeMinhocario(7, -5);
+// ── COMPOSTEIRA — 4 leiras 3m(Z) × 1m(X), rotação 15 dias ──
+const LEIRAS_X_S = [0.775, 1.925, 3.075, 4.225]; // 4 leiras, gap 0.15m
+const LEIRA_MATS = [
+  new THREE.MeshLambertMaterial({ color: 0x8B4513 }), // Leira 1 – fresca
+  new THREE.MeshLambertMaterial({ color: 0xA0522D }), // Leira 2 – ativa (7d)
+  new THREE.MeshLambertMaterial({ color: 0x6B8E23 }), // Leira 3 – maturando (14d)
+  new THREE.MeshLambertMaterial({ color: 0x2E4A1E }), // Leira 4 – pronta (21d)
+];
+LEIRAS_X_S.forEach((lx, i) => {
+  // mound de composto colorido por estágio
+  box(0.88, 0.28 + i * 0.05, 2.85, LEIRA_MATS[i], lx, 0.16, -5);
+  // divisórias laterais de madeira
+  box(0.06, 0.34, 3.0, M.wood, lx - 0.5, 0.17, -5);
+  box(0.06, 0.34, 3.0, M.wood, lx + 0.5, 0.17, -5);
+});
+// tábuas frontais
+box(4.5, 0.34, 0.06, M.woodDark, 2.5, 0.17, -6.5);
+box(4.5, 0.34, 0.06, M.woodDark, 2.5, 0.17, -3.5);
 
-// Label B1
-const lblB1 = makeLabel('A2 — COMPOSTEIRA + MINHOCÁRIO', '4×4m cada · ciclagem de nutrientes', '#ffffff', '#BCAAA4');
-lblB1.position.set(5, 2.6, -5);
+// Estrutura de sombrite 50% — composteira
+const CS = { x1: 0.25, x2: 4.75, z1: -6.7, z2: -3.3, h: 2.1 };
+const csMidX = (CS.x1 + CS.x2) / 2, csMidZ = (CS.z1 + CS.z2) / 2;
+[[CS.x1,CS.z1],[CS.x1,CS.z2],[CS.x2,CS.z1],[CS.x2,CS.z2],[2.5,CS.z1],[2.5,CS.z2]].forEach(([px,pz]) => {
+  box(0.08, CS.h, 0.08, M.woodDark, px, CS.h / 2, pz);
+});
+box(CS.x2 - CS.x1 + 0.08, 0.07, 0.07, M.wood, csMidX, CS.h + 0.04, CS.z1);
+box(CS.x2 - CS.x1 + 0.08, 0.07, 0.07, M.wood, csMidX, CS.h + 0.04, CS.z2);
+box(0.07, 0.07, CS.z2 - CS.z1 + 0.08, M.wood, CS.x1, CS.h + 0.04, csMidZ);
+box(0.07, 0.07, CS.z2 - CS.z1 + 0.08, M.wood, CS.x2, CS.h + 0.04, csMidZ);
+box(CS.x2 - CS.x1, 0.02, CS.z2 - CS.z1, sombMat, csMidX, CS.h + 0.08, csMidZ); // teto
+box(0.02, CS.h, CS.z2 - CS.z1, sombMat, CS.x1, CS.h / 2, csMidZ);
+box(0.02, CS.h, CS.z2 - CS.z1, sombMat, CS.x2, CS.h / 2, csMidZ);
+box(CS.x2 - CS.x1, CS.h, 0.02, sombMat, csMidX, CS.h / 2, CS.z1);
+box(CS.x2 - CS.x1, CS.h, 0.02, sombMat, csMidX, CS.h / 2, CS.z2);
+
+// ── MINHOCÁRIO — 2 canteiros 3m×1,2m, elevados 0,65m em metal ──
+const MH_BEDS = [{ x: 6.75 }, { x: 8.25 }];
+const MH_W = 1.2, MH_D = 3.0, MH_EL = 0.65, MH_H = 0.32;
+MH_BEDS.forEach(({ x }) => {
+  const baseY = MH_EL + MH_H / 2;
+  // pernas metálicas
+  [[-0.5,-1.3],[0.5,-1.3],[-0.5,1.3],[0.5,1.3]].forEach(([dx,dz]) => {
+    box(0.06, MH_EL, 0.06, M.concrete, x + dx, MH_EL / 2, -5 + dz);
+  });
+  // caixas do canteiro (madeira)
+  box(MH_W,      MH_H, 0.06, M.wood, x, baseY, -5 - MH_D / 2);
+  box(MH_W,      MH_H, 0.06, M.wood, x, baseY, -5 + MH_D / 2);
+  box(0.06, MH_H, MH_D, M.wood, x - MH_W / 2, baseY, -5);
+  box(0.06, MH_H, MH_D, M.wood, x + MH_W / 2, baseY, -5);
+  // húmus
+  box(MH_W - 0.12, MH_H - 0.06, MH_D - 0.12, M.soilRich, x, baseY + 0.04, -5);
+  // minhocas (indicador visual)
+  for(let w = 0; w < 4; w++) {
+    const wx = x + (w - 1.5) * 0.28;
+    const wz = -5 + (w % 2 ? 0.5 : -0.5);
+    cyl(0.03, 0.03, 0.12, 4, M.worm, wx, MH_EL + MH_H + 0.04, wz, Math.PI / 2);
+  }
+});
+
+// Estrutura de sombrite 50% — minhocário
+const MS = { x1: 6.15, x2: 8.85, z1: -6.7, z2: -3.3, h: 2.1 };
+const msMidX = (MS.x1 + MS.x2) / 2, msMidZ = (MS.z1 + MS.z2) / 2;
+[[MS.x1,MS.z1],[MS.x1,MS.z2],[MS.x2,MS.z1],[MS.x2,MS.z2],[7.5,MS.z1],[7.5,MS.z2]].forEach(([px,pz]) => {
+  box(0.08, MS.h, 0.08, M.woodDark, px, MS.h / 2, pz);
+});
+box(MS.x2 - MS.x1 + 0.08, 0.07, 0.07, M.wood, msMidX, MS.h + 0.04, MS.z1);
+box(MS.x2 - MS.x1 + 0.08, 0.07, 0.07, M.wood, msMidX, MS.h + 0.04, MS.z2);
+box(0.07, 0.07, MS.z2 - MS.z1 + 0.08, M.wood, MS.x1, MS.h + 0.04, msMidZ);
+box(0.07, 0.07, MS.z2 - MS.z1 + 0.08, M.wood, MS.x2, MS.h + 0.04, msMidZ);
+box(MS.x2 - MS.x1, 0.02, MS.z2 - MS.z1, sombMat, msMidX, MS.h + 0.08, msMidZ); // teto
+box(0.02, MS.h, MS.z2 - MS.z1, sombMat, MS.x1, MS.h / 2, msMidZ);
+box(0.02, MS.h, MS.z2 - MS.z1, sombMat, MS.x2, MS.h / 2, msMidZ);
+box(MS.x2 - MS.x1, MS.h, 0.02, sombMat, msMidX, MS.h / 2, MS.z1);
+box(MS.x2 - MS.x1, MS.h, 0.02, sombMat, msMidX, MS.h / 2, MS.z2);
+
+// Label A2
+const lblB1 = makeLabel('A2 — COMPOSTEIRA + MINHOCÁRIO', '4 leiras 3×1m · 2 canteiros 3×1,2m elevados', '#ffffff', '#BCAAA4');
+lblB1.position.set(5, 2.9, -5);
 
 // ═══════════════════════════════════════════════════════════════
-// B2 — GALINHEIRO 8×6m  (center: 5, 0, 5)
-// X: 1 to 9   Z: 2 to 8
+// B2 — GALINHEIRO 4×6m  (center: 5, 0, 5)
+// X: 3 to 7   Z: 2 to 8
 // ═══════════════════════════════════════════════════════════════
 const GX = 5, GZ = 5;     // center
-const GW = 8, GD = 6;     // width (X) × depth (Z)
+const GW = 4, GD = 6;     // width (X) × depth (Z)
 const GH = 2.2;            // wall height
 const GXMIN = GX-GW/2, GXMAX = GX+GW/2; // 1, 9
 const GZMIN = GZ-GD/2, GZMAX = GZ+GD/2; // 2, 8
@@ -564,7 +586,7 @@ box(1.0, 0.12, 0.25, M.woodDark, GXMIN + 0.8, 0.2, GZMIN + 0.3);
 box(0.88, 0.06, 0.15, new THREE.MeshLambertMaterial({color:0x64B5F6}), GXMIN + 0.8, 0.25, GZMIN + 0.3);
 
 // Label B2
-const lblB2 = makeLabel('B2 — GALINHEIRO', '8×6m · 48m² · ~20 galinhas', '#ffffff', '#E8A040');
+const lblB2 = makeLabel('B2 — GALINHEIRO', '4×6m · 24m² · ~20 galinhas', '#ffffff', '#E8A040');
 lblB2.position.set(GX, 4.0, GZ);
 
 // ═══════════════════════════════════════════════════════════════
