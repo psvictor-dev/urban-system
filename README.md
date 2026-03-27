@@ -7,9 +7,13 @@
 
 ## 🎬 Preview em Vídeo
 
-[![Preview do Sítio](https://img.youtube.com/vi/VIDEO_ID_AQUI/maxresdefault.jpg)](https://www.youtube.com/watch?v=VIDEO_ID_AQUI)
+[![Preview do Sítio](https://peertube.social/lazy-static/previews/VIDEO_UUID_AQUI.jpg)](https://peertube.social/videos/watch/VIDEO_UUID_AQUI)
 
-> **Como atualizar:** Suba o `docs/preview_sitio_2x.mov` no YouTube como **Não listado** e substitua `VIDEO_ID_AQUI` nas duas URLs acima pelo ID gerado (ex: `dQw4w9WgXcQ`).
+> **Como subir o vídeo no PeerTube:**
+> 1. Crie uma conta em [peertube.social](https://peertube.social) (gratuito, open source)
+> 2. Faça o upload do arquivo `docs/preview_sitio_2x.mov`
+> 3. Defina a visibilidade como **Não listado** (unlisted)
+> 4. Copie o UUID do vídeo na URL (ex: `a1b2c3d4-...`) e substitua `VIDEO_UUID_AQUI` nas duas linhas acima
 
 ---
 
