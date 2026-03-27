@@ -192,11 +192,14 @@
     <div class="info-row"><span>Ninhos</span><span class="info-val">5 und.</span></div>
     <div class="info-row"><span>Poleiros</span><span class="info-val">3 und.</span></div>
     <div class="info-row"><span>Ovos/dia</span><span class="info-val">~20</span></div>
+    <div class="info-row"><span>Vão coleta</span><span class="info-val">65cm</span></div>
+    <div class="info-row"><span>Bandeja</span><span class="info-val">4×4m</span></div>
   </div>
 
   <div class="legend">
     <h4>LEGENDA</h4>
-    <div class="leg-item"><div class="leg-dot" style="background:#FFF9C4;border:1px solid #ccc"></div>Area coberta</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#FFF9C4;border:1px solid #ccc"></div>Piso ripado elevado</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#37474F"></div>Bandeja coleta esterco</div>
     <div class="leg-item"><div class="leg-dot" style="background:#A5D6A7"></div>Piquetes</div>
     <div class="leg-item"><div class="leg-dot" style="background:#FF7043"></div>Telhado palha</div>
     <div class="leg-item"><div class="leg-dot" style="background:#8D6E63"></div>Estrutura madeira</div>
@@ -296,6 +299,7 @@ function cyl(rt,rb,h, seg, mat, x,y,z, rx=0) {
 // ─── SCALE ───────────────────────────────────────────────────────
 // Real: 6m comprimento (Z), 4m largura (X), altura ~2m (Y)
 // Scale: 1 unit = 1 meter
+const floorH = 0.65;  // vão para coleta de esterco
 
 const groups = { roof: new THREE.Group(), walls: new THREE.Group(), structure: new THREE.Group() };
 Object.values(groups).forEach(g => scene.add(g));
@@ -315,7 +319,45 @@ for(let i=0; i<30; i++){
 }
 
 // ─── PISO ────────────────────────────────────────────────────────
-box(4, 0.05, 6, MAT.cal, 0, 0.025, 0);  // piso branco/cal
+// Chão compactado visível sob o vão (coleta de esterco)
+const matVao = new THREE.MeshLambertMaterial({ color: 0x5A3E28 });
+box(4, 0.06, 4, matVao, 0, 0.03, 0);   // chão escuro no vão
+
+// Bandeja / calha de coleta
+const matBandeja = new THREE.MeshLambertMaterial({ color: 0x37474F });
+box(3.8, 0.06, 3.8, matBandeja, 0, 0.14, 0);
+box(3.8, 0.12, 0.05, matBandeja, 0, 0.19, -1.9);
+box(3.8, 0.12, 0.05, matBandeja, 0, 0.19,  1.9);
+box(0.05, 0.12, 3.8, matBandeja, -1.9, 0.19, 0);
+box(0.05, 0.12, 3.8, matBandeja,  1.9, 0.19, 0);
+// Acúmulo de esterco
+cyl(0.55, 0.8, 0.06, 12, new THREE.MeshLambertMaterial({color:0x2C1A0E}), -0.4, 0.24,  0.3);
+cyl(0.45, 0.6, 0.05, 12, new THREE.MeshLambertMaterial({color:0x2C1A0E}),  0.7, 0.22, -0.6);
+
+// Pés de suporte do piso elevado (4 cantos + 2 centrais)
+const legH = floorH - 0.2;
+[[-1.8,-1.8],[-1.8,1.8],[1.8,-1.8],[1.8,1.8],[0,-1.8],[0,1.8]].forEach(([lx,lz]) => {
+  cyl(0.055, 0.065, legH, 6, MAT.woodDark, lx, legH/2 + 0.2, lz);
+});
+// Vigas de contraventamento
+box(3.6, 0.07, 0.07, MAT.wood, 0, floorH - 0.12, -1.8);
+box(3.6, 0.07, 0.07, MAT.wood, 0, floorH - 0.12,  1.8);
+box(0.07, 0.07, 3.6, MAT.wood, -1.8, floorH - 0.12, 0);
+box(0.07, 0.07, 3.6, MAT.wood,  1.8, floorH - 0.12, 0);
+
+// Piso ripado elevado (4×4, Z=-2 a +2)
+for(let rz = -1.85; rz <= 1.85; rz += 0.16) {
+  box(3.8, 0.06, 0.07, MAT.cal, 0, floorH, rz);
+}
+// Moldura do piso
+box(3.8, 0.09, 0.09, MAT.woodDark, 0, floorH - 0.02, -1.9);
+box(3.8, 0.09, 0.09, MAT.woodDark, 0, floorH - 0.02,  1.9);
+box(0.09, 0.09, 3.8, MAT.woodDark, -1.9, floorH - 0.02, 0);
+box(0.09, 0.09, 3.8, MAT.woodDark,  1.9, floorH - 0.02, 0);
+
+// Chão piquetes (fora da área coberta)
+box(4, 0.04, 1, MAT.grass, 0, 0.02, -2.5);
+box(4, 0.04, 1, MAT.grass, 0, 0.02,  2.5);
 
 // ─── PIQUETES (ground) ───────────────────────────────────────────
 // Layout: area coberta 4x4 no centro Z, piquetes 1x2 nas laterais Z
@@ -441,24 +483,22 @@ scene.add(roofGroup);
 // ─── NINHOS (5 unidades na parede Z=2, externa) ─────────────────
 for(let i=0; i<5; i++) {
   const nx = -1.8 + i * 0.9;
-  // caixa do ninho
-  box(0.3, 0.3, 0.35, MAT.ninho, nx, 0.75, 2.2);
-  // tampa do ninho
-  box(0.32, 0.04, 0.37, MAT.woodDark, nx, 0.92, 2.2);
+  box(0.3,  0.3,  0.35, MAT.ninho,    nx, floorH + 0.40, 2.2);
+  box(0.32, 0.04, 0.37, MAT.woodDark, nx, floorH + 0.57, 2.2);
 }
 
 // ─── POLEIROS (3 varões horizontais internos) ────────────────────
 [0.4, 0.8, 1.2].forEach(ph_y => {
-  box(3.6, 0.07, 0.07, MAT.woodDark, 0, ph_y, 0);
+  box(3.6, 0.07, 0.07, MAT.woodDark, 0, floorH + ph_y, 0);
 });
 
 // ─── BEBEDOURO ───────────────────────────────────────────────────
-cyl(0.25, 0.25, 0.12, 12, MAT.water, -1, 0.12, -0.5);
-cyl(0.05, 0.05, 0.3, 8, MAT.woodDark, -1, 0.27, -0.5);
+cyl(0.25, 0.25, 0.12, 12, MAT.water,    -1, floorH + 0.12, -0.5);
+cyl(0.05, 0.05, 0.3,  8,  MAT.woodDark, -1, floorH + 0.27, -0.5);
 
 // ─── COMEDOURO ──────────────────────────────────────────────────
-box(1.4, 0.12, 0.18, MAT.woodDark, 0.8, 0.1, 0.5);
-box(1.3, 0.06, 0.08, MAT.food, 0.8, 0.18, 0.5);
+box(1.4, 0.12, 0.18, MAT.woodDark, 0.8, floorH + 0.10, 0.5);
+box(1.3, 0.06, 0.08, MAT.food,     0.8, floorH + 0.18, 0.5);
 
 // ─── GALINHAS (estilizadas) ───────────────────────────────────────
 function makeChicken(x, z) {
@@ -482,7 +522,7 @@ function makeChicken(x, z) {
     leg.position.set(ox, 0.09, 0);
     g.add(leg);
   });
-  g.position.set(x, 0, z);
+  g.position.set(x, floorH, z);
   g.rotation.y = Math.random() * Math.PI * 2;
   scene.add(g);
   return g;
